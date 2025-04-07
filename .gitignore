@@ -5,12 +5,14 @@ staticfiles/
 .envs/*
 !.envs/.env.example
 
-
-Musics smaple for testing/
-img sample for testing/
+# user defined
+Samples/*
 music_player.postman_collection.json
 artists
 musics 
+todo.txt
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

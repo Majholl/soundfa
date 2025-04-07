@@ -1,5 +1,6 @@
 from pathlib import Path
 from os import path , getenv
+import django
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -17,6 +18,9 @@ if path.isfile(local_env_file):
 # Application definition
 APP_DIR = BASE_DIR / 'core_apps'
 
+
+
+# Apps that working with togheter to make the project working
 DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -24,12 +28,42 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',] 
-THIDR_PARTY_APPS = ['rest_framework',]
+
+THIDR_PARTY_APPS = ['rest_framework',  'corsheaders',]
+
 LOCAL_APP = ['core_apps.musicapp',]
+
 INSTALLED_APPS = DJANGO_APPS + THIDR_PARTY_APPS + LOCAL_APP
 
 
 
+
+# Middlewares which their job is to act as gate to change and customize Requests/Response
+DJANGO_MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+THIRD_MIDDLEWARE = []
+
+LOCAL_MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware',]
+
+MIDDLEWARE = DJANGO_MIDDLEWARE + THIRD_MIDDLEWARE + LOCAL_MIDDLEWARE 
+
+
+
+# CORS configuration
+CORS_ALLOWED_ORIGINS = ["https://*"]
+CORS_ALLOW_CREDENTIALS = True
+
+
+
+# logs configurations
 LOGGIN_CONFIG=None
 
 LOGURU_LOGGING = {
@@ -68,16 +102,6 @@ LOGGING = {
 
 
 
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 ROOT_URLCONF = 'main.urls'
 

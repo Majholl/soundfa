@@ -9,7 +9,9 @@ api based project for music websites .
 
 
 # 🔧 Tech Stack
-- <b>FronEnd</b> :  - 
+- <b>FronEnd by</b> : <a href='https://github.com/PAPAshady'><img src='icons/PAPAshady.jpg' width="25px" height="25px" style='border-radius:20px'></img>PAPAshady</a> 
+- <b>BackEnd by</b> : <a href='https://github.com/Majholl'><img src='icons/majholl.jpg' width="25px" height="25px" style='border-radius:20px'></img>Majholl</a> 
+
 
 - <b>Language</b> : Python
 
