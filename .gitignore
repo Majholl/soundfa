@@ -10,9 +10,8 @@ Samples/*
 music_player.postman_collection.json
 artists
 musics 
-todo.txt
-
-
+*.txt
+media/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

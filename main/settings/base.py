@@ -1,6 +1,5 @@
 from pathlib import Path
 from os import path , getenv
-import django
 from dotenv import load_dotenv
 from loguru import logger
 
@@ -58,8 +57,16 @@ MIDDLEWARE = DJANGO_MIDDLEWARE + THIRD_MIDDLEWARE + LOCAL_MIDDLEWARE
 
 
 # CORS configuration
-CORS_ALLOWED_ORIGINS = ["https://*"]
+# CORS_ALLOWED_ORIGINS = ["https://*", 'http://localhost', 'http://127.0.0.1']
 CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True # production mode
+
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 
 
@@ -126,6 +133,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'main.wsgi.application'
+
+
 
 
 
@@ -200,7 +209,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 MEDIA_DIR = '/media/'
-
+MEDIA_URL = '/media/'
 MEDIA_ROOT = path.join(BASE_DIR , "media")
 
 

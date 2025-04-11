@@ -34,9 +34,24 @@ api based project for music websites .
 <b>Full doc </b>: <a href='https://www.postman.com/grey-escape-224969/soundfa'>Full Documentation api requests</a>
 
 
+### ⛓️How to Run 
+<hr>
+- soon
 
 
-### 📜 License
+
+#### 🐬 Docker run 
+<hr>
+- soon
+
+##### 📸 Images 
+- soon
+
+<br>
+- FrontEnd webpage : <a href='https://Muzik-site.netlify.app'> Music site </a>
+
+###### 📜 License
+<hr>
 
 - This project is licensed under the MIT License. See the LICENSE file for details.
 

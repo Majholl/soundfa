@@ -1,3 +1,5 @@
+import os
+from urllib import request
 from rest_framework import serializers
 from time import time
 
@@ -128,21 +130,27 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
             #- Get musics info 
             #- Represent data 
     """
+    
+    download_url = serializers.SerializerMethodField()
     class Meta:
         model = MusicModel
-        fields = ['id', 'title', 'musicfile', 'musiccover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'musicfile', 'download_url', 'musiccover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
     
     
-    
+    def get_download_url(self, obj):
+        request = self.context.get('request')
+        filename = os.path.basename(obj.musicfile.name)
+        return request.build_absolute_uri(f'download/music/{filename}')
+        
+        
     def to_representation(self, instance):
         req = {}
-
         pk = instance.pk
         
-        req['id'] = pk
-            
+        req['id'] = pk     
         req['title'] = instance.title
         req['musicfile']  = instance.musicfile.url
+        req['musicfile-downloadable'] = self.get_download_url(instance)
         
         if instance.musiccover :
             req['musiccover']  = instance.musiccover.url

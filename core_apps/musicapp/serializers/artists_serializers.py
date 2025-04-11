@@ -1,5 +1,3 @@
-from math import log
-from turtle import update
 from rest_framework import serializers
 from loguru import logger
 from time import time 
@@ -11,10 +9,10 @@ from core_apps.musicapp.models import artists
 
 class CreateArtistsSerialiazer(serializers.ModelSerializer):
     """
-    -This class is for adding artist into database
-        #- METHOD : POST 
-        #- Add one artist 
-        #- Represent data 
+        -This class is for adding artist into database
+            #- METHOD : POST 
+            #- Add one artist 
+            #- Represent data 
     """
     realname = serializers.CharField(required=False)
     bio = serializers.CharField(required=False)

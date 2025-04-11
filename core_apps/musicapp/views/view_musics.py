@@ -1,16 +1,19 @@
-from operator import le
 from urllib.request import Request
+from django.http import FileResponse, Http404
 from rest_framework.response import Response 
 from rest_framework.decorators import api_view
 from rest_framework import status
 from loguru import logger
 from os import path
 import os
-from typing import Optional 
+from typing import Optional
+
+from django.conf import settings
 
 from ..models.artists import ArtistsModels
 from ..models.musics import MusicModel
 from ..serializers.musics_serializers import CreateMusicSerializer, UpdateMusicSerializer , GetMusicByNameSerializer
+
 
 
 
@@ -118,9 +121,8 @@ def update_music(request:Request) -> Response:
         serializers = UpdateMusicSerializer(music, data=data, partial=True)
         if serializers.is_valid():
             serializers.save()
-        logger.info(f'Music info update , Music-new-info :{str(serializers.data)} ')
-
-        return Response({'msg':'Music updated successfully.', 'status':200, 'music':serializers.data}, status=status.HTTP_200_OK)
+            logger.info(f'Music info update , Music-new-info :{str(serializers.data)} ')
+            return Response({'msg':'Music updated successfully.', 'status':200, 'music':serializers.data}, status=status.HTTP_200_OK)
     
     except MusicModel.DoesNotExist:
           return Response({'msg':'The Music does not exits', 'status':404}, status=status.HTTP_404_NOT_FOUND)
@@ -167,7 +169,7 @@ def get_music_by_musicname(request:Request, name:Optional[str]=None) -> Response
         if music.count() == 0 :
             return Response({'msg':'No musci  found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = GetMusicByNameSerializer(instance=music , many=True)
+        serializer = GetMusicByNameSerializer(instance=music , many=True, context={'request':request})
         return Response({'msg':'Music data found successfully.', 'status':200, 'music':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
     
@@ -224,7 +226,7 @@ def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Respons
         if music.count() == 0 :
             return Response({'msg':'Musci not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
         
-        serializer = GetMusicByNameSerializer(instance=music , many=True)
+        serializer = GetMusicByNameSerializer(instance=music , many=True, context={'request':request})
         return Response({'msg':'Music data found successfully.', 'status':200, 'music':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
     except ArtistsModels.DoesNotExist :
@@ -244,6 +246,12 @@ def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Respons
 
 @api_view(['DELETE'])
 def delete_music(request:Request):
+     
+    """
+        -This function delete music and all it's info
+        #- METHOD : DELETE
+            
+    """   
     data = request.data
     try:
         if 'id' not in data:
@@ -272,3 +280,15 @@ def delete_music(request:Request):
     
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
+    
+    
+def download_music(request, filename):
+    file_path = os.path.join(settings.MEDIA_ROOT, 'musics', filename)
+    if os.path.exists(file_path):
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
+        return response
+    else:
+        raise Http404("Music file not found")
