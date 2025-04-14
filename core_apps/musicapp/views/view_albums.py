@@ -186,7 +186,7 @@ def get_album_by_album_name(request:Response, title:Optional[str]=None) -> Respo
     try:
         
         info_dict = {}
-        print(request.path)
+        
         if title is None :
             return Response({'msg':'Provide album name for searching.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         

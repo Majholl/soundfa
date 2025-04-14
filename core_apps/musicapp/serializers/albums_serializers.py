@@ -127,3 +127,22 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
         model = AlbumModel
         fields = ['id', 'title', 'albumcover', 'artist_id', 'music_id', 'totaltracks', 'description', 'created_at', 'updated_at',]
         read_only_fields = ["id"]
+        
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['albumcover'] = instance.albumcover.url
+        req['artist_id'] = instance.artist_id.values('id', 'name', 'image')
+        req['music_id'] = instance.music_id.values('id', 'title', 'musiccover', 'musicfile')
+        req['totaltracks'] = instance.totaltracks
+        req['description'] = instance.description
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
+        
+        
+        return req
+    
+    
+    
