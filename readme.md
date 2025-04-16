@@ -42,7 +42,20 @@ api based project for music websites .
 
 #### 🐬 Docker run 
 <hr>
-- soon
+For running by docker simply : 
+
+
+- Build & Run the countainer
+
+```bash 
+    docker-compose up --build 
+```
+
+- Stop the countainer 
+```bash 
+    docker-compose down
+```
+
 
 ##### 📸 Images 
 - soon
