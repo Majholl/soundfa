@@ -46,28 +46,39 @@ def add_album(request:Request) -> Response :
         
         
         if 'artist_id' in data:
-            if not isinstance(data['artist_id'], str):
+            artist_ids = data.getlist('artist_id')
+            
+            if not isinstance(artist_ids, list):
                 return Response({'msg':'Input value is invalid.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
-            artist_ids = data.getlist('artist_id')
-            if not artist_ids or all(aid.strip() == '' for aid in artist_ids) :
+            if all(aid.strip() == '' for aid in artist_ids):
                 return Response({'msg': 'Provide at least one valid artist ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
+            
             else:
                 artists = ArtistsModels.objects.filter(pk__in=artist_ids)
+                if len(artist_ids) != artists.count():
+                    return Response({'msg':'One or more artist ID(s) not found', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+                
                 if not artists.exists():
                     return Response({'msg': 'No artist found with provided ID(s).', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+            
+            
             
         if 'music_id' in data:
-            if not isinstance(data['artist_id'], str):
+            music_ids = data.getlist('music_id')
+            
+            if not isinstance(music_ids, list):
                 return Response({'msg':'Input value is invalid.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
-            music_ids = data.getlist('music_id')
-            if not music_ids or all(aid.strip() == '' for aid in music_ids) :
+            if all(aid.strip() == '' for aid in music_ids) :
                 return Response({'msg': 'Provide at least one valid music ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                artists = MusicModel.objects.filter(pk__in=music_ids)
-                if not artists.exists():
+                musics = MusicModel.objects.filter(pk__in=music_ids)
+                if len(music_ids) != musics.count():
+                    return Response({'msg':'One or more artist ID(s) not found', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if not musics.exists():
                     return Response({'msg': 'No music found with provided ID(s).', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
     
         
@@ -77,6 +88,8 @@ def add_album(request:Request) -> Response :
             serializer.save()
             return Response({'msg':'Album added successfully.', 'status':201, 'album-ifno':serializer.data}, status=status.HTTP_201_CREATED)
         
+        
+    
     except ArtistsModels.DoesNotExist:    
         return Response({'msg':'Artist does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)  
     

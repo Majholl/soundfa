@@ -11,7 +11,7 @@ api based project for music websites .
 # 🔧 Tech Stack
 - <b>FronEnd by</b> : <a href='https://github.com/PAPAshady'><img src='icons/PAPAshady.jpg' width="20px" height="20px" style='border-radius:20px'></img>PAPAshady</a>
 
-- <b>BackEnd by</b> : <a href='https://github.com/Majholl'><img src='icons/majholl.jpg' width="20px" height="20px" style='border-radius:20px'></img>Majholl</a> 
+- <b>BackEnd by</b> : <a href='https://github.com/Majholl'><img src='icons/Majholl.jpg' width="20px" height="20px" style='border-radius:20px'></img>Majholl</a> 
 
 
 - <b>Language</b> : Python

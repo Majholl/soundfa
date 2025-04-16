@@ -151,7 +151,7 @@ DATABASES = {
         'NAME': getenv('DB_NAME'),
         'HOST': getenv('DB_HOST'),
         'USER': getenv('DB_USER'),
-        'PORT': getenv('DB_PORT')
+        'PORT': getenv('DB_PORT'), 
     }
 }
 
