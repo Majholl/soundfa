@@ -1,0 +1,32 @@
+
+services:
+  db: # depend's on .env/.env.local file DB_HOST
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    env_file:
+      - .envs/.env.local
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    
+  backend:
+    build: .
+    container_name: soundfa
+    restart: always
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8010"
+    env_file:
+      - .envs/.env.local
+
+    depends_on:
+      - db
+
+
+    
+
+volumes:
+  mysql_data:
