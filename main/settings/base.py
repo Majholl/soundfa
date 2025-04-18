@@ -2,6 +2,7 @@ from pathlib import Path
 from os import path , getenv
 from dotenv import load_dotenv
 from loguru import logger
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -17,6 +18,13 @@ if path.isfile(local_env_file):
 # Application definition
 APP_DIR = BASE_DIR / 'core_apps'
 
+STATIC_URL = 'static/'
+STATIC_DIR = 'static/'
+
+
+MEDIA_DIR = '/media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = path.join(BASE_DIR , "media")
 
 
 # Apps that working with togheter to make the project working
@@ -28,9 +36,9 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',] 
 
-THIDR_PARTY_APPS = ['rest_framework',  'corsheaders',]
+THIDR_PARTY_APPS = ['rest_framework',  'corsheaders', 'rest_framework_simplejwt']
 
-LOCAL_APP = ['core_apps.musicapp',]
+LOCAL_APP = ['core_apps.musicapp', 'core_apps.user']
 
 INSTALLED_APPS = DJANGO_APPS + THIDR_PARTY_APPS + LOCAL_APP
 
@@ -48,9 +56,8 @@ DJANGO_MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-THIRD_MIDDLEWARE = []
-
-LOCAL_MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware',]
+THIRD_MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware',]
+LOCAL_MIDDLEWARE = []
 
 MIDDLEWARE = DJANGO_MIDDLEWARE + THIRD_MIDDLEWARE + LOCAL_MIDDLEWARE 
 
@@ -63,10 +70,27 @@ CORS_ORIGIN_ALLOW_ALL = True # production mode
 
 
 
-
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES' : ('core_apps.musicapp.cookie_auth.CookieAuthentication',),
+    
 }
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': getenv('SIGNING_KEY'),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'USER_ID_FIELD' : 'id',
+    'USER_ID_CLAIM': 'user_id'
+}
+
+
+COOKIE_NAME = 'access'
+COOKIE_SAMESITE = 'Lax'
+COOKIE_PATH ='/'
+COOKIE_HTTPONLY = True
+COOKIE_SECURE = getenv("COOKIE_SECURE", "True") 
 
 
 
@@ -203,17 +227,10 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
-MEDIA_DIR = '/media/'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = path.join(BASE_DIR , "media")
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'user.Users'

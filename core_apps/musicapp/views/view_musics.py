@@ -1,7 +1,7 @@
 from urllib.request import Request
 from django.http import FileResponse, Http404
 from rest_framework.response import Response 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from loguru import logger
 from os import path
@@ -13,7 +13,7 @@ from django.conf import settings
 from ..models.artists import ArtistsModels
 from ..models.musics import MusicModel
 from ..serializers.musics_serializers import CreateMusicSerializer, UpdateMusicSerializer , GetMusicByNameSerializer
-
+from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
 
@@ -23,6 +23,7 @@ from ..serializers.musics_serializers import CreateMusicSerializer, UpdateMusicS
 
 
 @api_view(['POST'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_music(request:Request) -> Response:
     """
         -This function add's music into the database with related artist_id 
@@ -92,6 +93,7 @@ def add_music(request:Request) -> Response:
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def update_music(request:Request) -> Response:
     """
         -This function update music info into the database
@@ -245,6 +247,7 @@ def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Respons
 
 
 @api_view(['DELETE'])
+@permission_classes([Is_superadmin])
 def delete_music(request:Request):
      
     """

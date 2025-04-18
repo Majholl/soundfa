@@ -39,6 +39,7 @@ class AlbumModel(models.Model):
     totaltracks = models.BigIntegerField(null=True, blank=True)
     description = models.CharField(max_length=256, null=True)
     
+    albumtype = models.SmallIntegerField(default=1)
     
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)

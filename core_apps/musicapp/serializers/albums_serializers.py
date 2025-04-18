@@ -27,20 +27,20 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
     
     class Meta:
         model = AlbumModel
-        fields = ['title', 'albumcover', 'artist_id', 'music_id', 'totaltracks', 'description']
+        fields = ['title', 'albumcover', 'albumtype', 'artist_id', 'music_id', 'totaltracks', 'description']
         
     def create(self, validated_data):
         try:
-  
+            print(validated_data)
             artist_id = validated_data.pop('artist_id', [])
             music_id = validated_data.pop('music_id', [])
             album = AlbumModel.objects.create(**validated_data)
             
             if artist_id : 
-                album.artist_id.set(artist_id)
+                album.artist_id.add(artist_id)
                 
             if music_id : 
-                album.music_id.set(music_id)
+                album.music_id.add(music_id)
                 
             if album:
                 return album

@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.request import Request
 from urllib.request import Request
@@ -15,9 +15,11 @@ from ..models.albums import AlbumModel
 from ..models.artists import ArtistsModels
 from ..models.musics import MusicModel
 from ..serializers.albums_serializers import CreateAlbumSerializers, UpdateAlbumSerializers, GetAlbumByNameSerializer
+from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
 @api_view(['POST'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_album(request:Request) -> Response :
     """
         -This function add's album into the database with related artist_id , music_id
@@ -43,6 +45,9 @@ def add_album(request:Request) -> Response :
             
             if path.splitext(data['albumcover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
                  return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+        if not 'albumtype' in data:
+            return Response({'msg':'Provide this field with a value 0 or 1.', "status":400}, status=status.HTTP_400_BAD_REQUEST)
         
         
         if 'artist_id' in data:
@@ -105,6 +110,7 @@ def add_album(request:Request) -> Response :
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def update_album(request:Response) -> Response:
     """
         -This function update music info into the database
@@ -217,10 +223,28 @@ def get_album_by_album_name(request:Response, title:Optional[str]=None) -> Respo
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
+    
+@api_view(['GET'])
+def get_all_albums(request:Request) -> Response:
+    """
+        -This function return's all albums's information 
+            #- METHOD : GET
+            #- Returns list of all albums with fields id, name, image, realname, bio
+            
+    """
+    try:
+        albums = AlbumModel.objects.all()
+        serializers = GetAlbumByNameSerializer(instance=albums, many=True)  
+        return Response({'msg':'Albums list.', 'status':200, 'albums':serializers.data, 'total':albums.count()}, status=status.HTTP_200_OK)
+    except Exception as err :
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+   
    
    
     
 @api_view(['DELETE'])
+@permission_classes([Is_superadmin])
 def delete_album(request:Request):
     """
         -This function delete Album and all it's info

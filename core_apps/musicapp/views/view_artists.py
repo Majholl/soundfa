@@ -1,7 +1,8 @@
 
 from urllib.request import Request
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from loguru import logger
 from django.db.models import Q
@@ -14,11 +15,12 @@ from typing import Optional
 
 from ..serializers.artists_serializers import CreateArtistsSerialiazer, GetArtitstsSerialiazer, UpdateDataArtistSerializer
 from ..models.artists import ArtistsModels
-
+from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
 
 @api_view(['POST'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_artist(request:Request) -> Response:
     
     """
@@ -66,6 +68,7 @@ def add_artist(request:Request) -> Response:
 
 
 @api_view(['PUT'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def update_artist(request:Request) -> Response:
     
     """
@@ -115,6 +118,8 @@ def update_artist(request:Request) -> Response:
         
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 
@@ -198,7 +203,11 @@ def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
 
 
 
+
+
+
 @api_view(['DELETE'])
+@permission_classes([Is_superadmin])
 def delete_artist(request:Request):
     """
         -This function removes the artist by it's id 
@@ -214,7 +223,7 @@ def delete_artist(request:Request):
         if 'id' not in data:
             return Response({'msg':'Artist id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        if 'id' in data and  len(data['id']) == 1 :
+        if 'id' in data and  all(i.strip()=='' for i in data['id']) :
             return Response({'msg':'id field is empty.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         artist = ArtistsModels.objects.get(pk = data['id'])
