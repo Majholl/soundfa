@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
-
+from rest_framework_simplejwt.tokens import RefreshToken 
 
 
 
@@ -24,9 +24,16 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
         user = User.objects.create(**validated_data)
-        return user
+        if user:
+            return user
 
-
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        token = RefreshToken.for_user(instance)
+        data['access'] = str(token.access_token)
+        data['refresh'] = str(token)
+        
+        return data
 
 
 
@@ -38,7 +45,7 @@ class LoginSerializer(serializers.Serializer):
     """
         -This class is for loging user into database
             #- METHOD : POST 
-            #- validating classs
+            #- validating data
     """
     username = serializers.CharField(required=False)
     email = serializers.EmailField(required=False)

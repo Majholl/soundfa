@@ -1,15 +1,16 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from time import time
 
+
 from .manager import customUserManager
-from ..musicapp.models.albums import AlbumModel
+from ..musicapp.models.playlists import PlaylistModel
 
 """
-    -This file is include all fields for the users
 
-    ## User class which have all the fields needed
-   
+    -This file is include all fields for the users 
+    #- This model is using for authentication
+
 """
 
 def nowTimeStamp():
@@ -23,12 +24,12 @@ class Users(AbstractUser):
         SUPERADMIN = 'superadmin', 'Superadmin'
         
     email = models.EmailField(db_index=True, unique=True)
-    playlists = models.ManyToManyField(to=AlbumModel, blank=True)
+    playlists = models.ManyToManyField(to=PlaylistModel, blank=True)
     usertype = models.CharField(max_length=10, choices=userType.choices, default=userType.USER)
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)
     
-    is_staff = None
+    
     date_joined = None
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email', 'password']
     
@@ -40,3 +41,7 @@ class Users(AbstractUser):
         
     def __str__(self):
         return f'{self.email} - {self.usertype}'
+    
+    
+    
+    

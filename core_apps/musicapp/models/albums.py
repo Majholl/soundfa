@@ -19,7 +19,7 @@ def album_file_cover(instance ,filename):
         fileName = f'{instance.title}_{instance.updated_at}{splitedName[-1]}'
         return path.join('albums', fileName)
     except Exception as err:
-        print(f'Error while editting music img name : error {str(err)}')
+        print(f'Error while editting album img name : error {str(err)}')
 
 
 def nowTimeStamp():
@@ -39,8 +39,7 @@ class AlbumModel(models.Model):
     totaltracks = models.BigIntegerField(null=True, blank=True)
     description = models.CharField(max_length=256, null=True)
     
-    albumtype = models.SmallIntegerField(default=1)
-    
+   
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)
 

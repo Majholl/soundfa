@@ -24,25 +24,34 @@ class customUserManager(UserManager):
             raise ValueError('A password must be provided.')
         
         email = self.normalize_email(email)
-        validate_email_address(email=email)
+        verified_email = validate_email_address(email=email)
+        if not verified_email:
+            return ValidationError('An email address is not valied ')
+        
+        
         user = self.model(email=email, **extra_fields)
         user.password = make_password(password)
         user.save(using=self._db)
+        
         return user
     
     
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('usertype' , 'superadmin')
         return self._create_user(email, password, **extra_fields)
     
     
     def create_admin(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('usertype' , 'admin')
         return self._create_user(email, password, **extra_fields)
     
     
     def create_user(self, email, password, **extra_fields):
         extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_staff', False)
         return self._create_user(email, password, **extra_fields)
     
