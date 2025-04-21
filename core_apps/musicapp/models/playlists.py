@@ -2,9 +2,7 @@ from django.db import models
 from os import path
 from time import time
 
-
 from .musics import MusicModel
-
 
 
 """
@@ -13,8 +11,9 @@ from .musics import MusicModel
     ## playlists class which have all the fields needed
     ## playlist_file_cover function which save the given file's in the defined storage
 
-
 """
+
+
 
 def playlist_file_cover(instance ,filename):
     try:
@@ -38,8 +37,8 @@ class PlaylistModel(models.Model):
     totaltracks = models.BigIntegerField(null=True, blank=True)
     
     description = models.CharField(max_length=256, null=True)
-    
     created_at = models.BigIntegerField(default=nowTimeStamp)
+    
     updated_at = models.BigIntegerField(default=nowTimeStamp)
 
     

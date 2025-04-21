@@ -46,9 +46,6 @@ def add_album(request:Request) -> Response :
             if path.splitext(data['albumcover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
                  return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
        
-        if not 'albumtype' in data:
-            return Response({'msg':'Provide this field with a value 0 or 1.', "status":400}, status=status.HTTP_400_BAD_REQUEST)
-        
         
         if 'artist_id' in data:
             artist_ids = data.getlist('artist_id')
