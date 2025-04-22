@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import view_artists , view_musics , view_albums , view_playlists
+from .views import view_artists , view_musics , view_albums , view_genres, view_playlists
 
 artist_url = [
     path('artist/add/' , view_artists.add_artist, name='Artist-add'),
@@ -25,7 +25,7 @@ music_url = [
 
 
 
-albuom_url = [
+album_url = [
     path('album/add/', view_albums.add_album, name='Album-add'),
     path('album/update/', view_albums.update_album, name='Album-update'),
     path('album/albums/', view_albums.get_all_albums, name='Albums-list'),
@@ -33,6 +33,18 @@ albuom_url = [
     path('album/<str:title>/', view_albums.get_album_by_album_name, name='Album-by-Album-name'),
     path('album/delete/', view_albums.delete_album, name='Album-delete'), 
 ]
+
+
+
+
+genere_url = [
+    path('genere/add/', view_genres.add_genere, name='Genere-add'),
+    path('genere/', view_genres.get_all_genere, name='All-generes'),
+    path('genere/genere/', view_genres.get_genere, name='Get-generes'),
+    path('genere/delete/', view_genres.delete_genere, name='Genere-delete'),
+]
+
+
 
 playlist_url = [
     path('playlist/add/', view_playlists.add_playlist, name='Playlsit-add'),
@@ -43,4 +55,4 @@ playlist_url = [
 ]
 
 
-urlpatterns = artist_url + music_url + albuom_url + playlist_url
+urlpatterns = artist_url + music_url + album_url + genere_url + playlist_url

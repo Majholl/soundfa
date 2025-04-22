@@ -14,7 +14,7 @@ from typing import Optional
 
 
 from ..serializers.artists_serializers import CreateArtistsSerialiazer, GetArtitstsSerialiazer, UpdateDataArtistSerializer
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
@@ -46,11 +46,11 @@ def add_artist(request:Request) -> Response:
         if 'image' in data and path.splitext(data['image'].name)[-1] not in ['.jpg', '.png', '.jpeg']:
             return Response({'msg':'Image type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        artist = ArtistsModels.objects.get(name = data['name'])
+        artist = ArtistsModel.objects.get(name = data['name'])
         
         return Response({'msg':'Artist already exits.', 'status':302}, status=status.HTTP_302_FOUND)
     
-    except ArtistsModels.DoesNotExist: 
+    except ArtistsModel.DoesNotExist: 
         serializers = CreateArtistsSerialiazer(data=data)
         if serializers.is_valid():
             serializers.save()
@@ -99,7 +99,7 @@ def update_artist(request:Request) -> Response:
                 
 
             
-        artist = ArtistsModels.objects.get(pk = data['id'])
+        artist = ArtistsModel.objects.get(pk = data['id'])
         
         serializers = UpdateDataArtistSerializer(artist , data=data, partial=True)
         if serializers.is_valid():
@@ -112,7 +112,7 @@ def update_artist(request:Request) -> Response:
             logger.info(f'Artist info update , artist-new-info :{str(serializers.data)} ')
             return Response({'msg':'Artist data updated.' , 'status':200, 'artist-updated':serializers.data}, status=status.HTTP_200_OK)
        
-    except ArtistsModels.DoesNotExist:
+    except ArtistsModel.DoesNotExist:
         return Response({'msg':'The artist does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
         
         
@@ -144,7 +144,7 @@ def get_all_artists(request:Request) -> Response:
         if 'order' in params :
             default_order = params['order']
             
-        allArtists = ArtistsModels.objects.all().order_by((default_order))
+        allArtists = ArtistsModel.objects.all().order_by((default_order))
         serializers = GetArtitstsSerialiazer(allArtists , many=True)
         logger.info('All artists requested')
         return Response({'msg':'Artists list.', 'status':200, 'artists':serializers.data, 'total-artists':allArtists.count()}, status=status.HTTP_200_OK)
@@ -188,12 +188,12 @@ def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
         else:  
             info_dict['name'] = name
 
-        artist = ArtistsModels.objects.get(Q(**info_dict))
+        artist = ArtistsModel.objects.get(Q(**info_dict))
         serializers = GetArtitstsSerialiazer(artist)
         logger.info(f'artist data asked : {str(serializers.data)}')
         return Response({'msg':'Artist info found successfully.', 'status':200, 'artist-info':serializers.data} , status=status.HTTP_200_OK)
     
-    except ArtistsModels.DoesNotExist:
+    except ArtistsModel.DoesNotExist:
         return Response({'msg':'The artist not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except Exception as err:
@@ -226,7 +226,7 @@ def delete_artist(request:Request):
         if 'id' in data and  all(i.strip()=='' for i in data['id']) :
             return Response({'msg':'id field is empty.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        artist = ArtistsModels.objects.get(pk = data['id'])
+        artist = ArtistsModel.objects.get(pk = data['id'])
         aritst_info  = {}
         aritst_info['id'] = artist.pk
         aritst_info['name'] = artist.name
@@ -242,7 +242,7 @@ def delete_artist(request:Request):
         logger.info(f'Artist requested  deleted, artist-info : {artist.pk} - {artist.name}')
         return Response({'msg' : 'Artists deleted successfully.', 'artist-deleted':aritst_info ,'status':200}, status=status.HTTP_200_OK)
     
-    except ArtistsModels.DoesNotExist:
+    except ArtistsModel.DoesNotExist:
         return Response({'msg':'Artist not found exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
         
     except Exception as err:

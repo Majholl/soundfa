@@ -12,7 +12,7 @@ from os import path
 
 
 from ..models.albums import AlbumModel 
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
 from ..serializers.albums_serializers import CreateAlbumSerializers, UpdateAlbumSerializers, GetAlbumByNameSerializer
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
@@ -32,7 +32,7 @@ def add_album(request:Request) -> Response :
     try:
         
         if len(data) < 2 :
-            return Response({'msg':'Add this fields to add  music.', 'essential-field':'title, albumcover', 'optional-fields':'artist_id, music_id', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Add this fields to add Album.', 'essential-field':'title, albumcover', 'optional-fields':'artist_id, music_id', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if 'title' in data:
             if len(data['title']) < 2 :
@@ -57,7 +57,7 @@ def add_album(request:Request) -> Response :
                 return Response({'msg': 'Provide at least one valid artist ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
             
             else:
-                artists = ArtistsModels.objects.filter(pk__in=artist_ids)
+                artists = ArtistsModel.objects.filter(pk__in=artist_ids)
                 if len(artist_ids) != artists.count():
                     return Response({'msg':'One or more artist ID(s) not found', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
                 
@@ -92,7 +92,7 @@ def add_album(request:Request) -> Response :
         
         
     
-    except ArtistsModels.DoesNotExist:    
+    except ArtistsModel.DoesNotExist:    
         return Response({'msg':'Artist does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)  
     
     except MusicModel.DoesNotExist:
@@ -138,7 +138,7 @@ def update_album(request:Response) -> Response:
             if  all(aid.strip() == '' for aid in artist_ids) :
                 return Response({'msg': 'Provide at least one valid artist ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
 
-            artist = ArtistsModels.objects.filter(pk__in = artist_ids)
+            artist = ArtistsModel.objects.filter(pk__in = artist_ids)
       
             if  not artist.exists() or artist.count() != len(artist_ids):
                 return Response({'msg': 'Some artist IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)

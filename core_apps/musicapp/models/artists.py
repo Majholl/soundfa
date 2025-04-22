@@ -6,7 +6,7 @@ from os import path
 """
     -This file is include all fields for the artists models 
 
-    ## ArtistsModels class which have all the fields needed
+    ## ArtistsModel class which have all the fields needed
     ## artists_direcrory function which save the given file in the defined storage
 
 """
@@ -26,7 +26,7 @@ def nowTimeStamp():
     return int(time())
 
 
-class ArtistsModels(models.Model):
+class ArtistsModel(models.Model):
     
     name = models.CharField(max_length=32)
     realname = models.CharField(max_length=64, null=True)

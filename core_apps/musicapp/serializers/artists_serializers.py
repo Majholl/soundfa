@@ -2,7 +2,7 @@ from rest_framework import serializers
 from loguru import logger
 from time import time 
 
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from core_apps.musicapp.models import artists
 
 
@@ -18,12 +18,12 @@ class CreateArtistsSerialiazer(serializers.ModelSerializer):
     bio = serializers.CharField(required=False)
     
     class Meta:
-        model = ArtistsModels
+        model = ArtistsModel
         fields = ["name", "realname", "bio", "image"]
     
     def create(self, validated_data):
         try:
-            aritsts = ArtistsModels.objects.create(**validated_data)
+            aritsts = ArtistsModel.objects.create(**validated_data)
             if aritsts :
                 logger.info(f'New Artist added , Artist : {str(validated_data)}')
                 return aritsts
@@ -64,7 +64,7 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
             #- Represent data 
     """
     class Meta:
-        model = ArtistsModels
+        model = ArtistsModel
         fields = ["id", "name", "image", "realname", "bio"]
         read_only_fields = ["id",]
         
@@ -125,7 +125,7 @@ class GetArtitstsSerialiazer(serializers.ModelSerializer):
             #- Represent data 
     """
     class Meta:
-        model = ArtistsModels
+        model = ArtistsModel
         fields = ["id", "name", "realname", "bio", "image"]
         read_only_fields = ["id"]
         

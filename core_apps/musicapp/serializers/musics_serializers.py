@@ -3,7 +3,7 @@ from urllib import request
 from rest_framework import serializers
 from time import time
 
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
 
 
@@ -17,7 +17,7 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         #- Add music into database
         #- Represent data 
     """
-    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModels.objects.all(), many=True)
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
     musiccover = serializers.ImageField(required=False)
     
     class Meta:

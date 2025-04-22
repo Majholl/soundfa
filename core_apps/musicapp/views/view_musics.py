@@ -10,7 +10,7 @@ from typing import Optional
 
 from django.conf import settings
 
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
 from ..serializers.musics_serializers import CreateMusicSerializer, UpdateMusicSerializer , GetMusicByNameSerializer
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
@@ -65,7 +65,7 @@ def add_music(request:Request) -> Response:
         
         
 
-        artists = ArtistsModels.objects.filter(pk__in=artists_id)
+        artists = ArtistsModel.objects.filter(pk__in=artists_id)
         if artists.count() != len(artists_id):
             return Response({'msg': 'Some artist IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,7 +76,7 @@ def add_music(request:Request) -> Response:
             logger.info(f'Music added : music info - {str(serializer.data)}')
             return Response({'msg':'Music added successfully.', 'status':200, 'music':serializer.data}, status=status.HTTP_200_OK)
     
-    except ArtistsModels.DoesNotExist:
+    except ArtistsModel.DoesNotExist:
         return Response({'msg':'Artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)    
         
     except Exception as err:    
@@ -175,7 +175,7 @@ def get_music_by_musicname(request:Request, name:Optional[str]=None) -> Response
         return Response({'msg':'Music data found successfully.', 'status':200, 'music':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
     
-    except ArtistsModels.DoesNotExist :
+    except ArtistsModel.DoesNotExist :
         return Response({'msg':'artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except MusicModel.DoesNotExist :
@@ -223,7 +223,7 @@ def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Respons
                 
             info_dict['name'] = data['name']
             
-        artist = ArtistsModels.objects.get(**info_dict)
+        artist = ArtistsModel.objects.get(**info_dict)
         music = MusicModel.objects.filter(artist_id = artist.pk)
         if music.count() == 0 :
             return Response({'msg':'Musci not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
@@ -231,7 +231,7 @@ def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Respons
         serializer = GetMusicByNameSerializer(instance=music , many=True, context={'request':request})
         return Response({'msg':'Music data found successfully.', 'status':200, 'music':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
-    except ArtistsModels.DoesNotExist :
+    except ArtistsModel.DoesNotExist :
         return Response({'msg':'artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except MusicModel.DoesNotExist :

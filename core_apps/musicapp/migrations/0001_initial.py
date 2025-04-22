@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='ArtistsModels',
+            name='ArtistsModel',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=32)),
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('musicfile', models.FileField(upload_to=core_apps.musicapp.models.musics.music_file_cover)),
                 ('created_at', models.BigIntegerField(default=core_apps.musicapp.models.musics.nowTimeStamp)),
                 ('updated_at', models.BigIntegerField(default=core_apps.musicapp.models.musics.nowTimeStamp)),
-                ('artist_id', models.ManyToManyField(to='musicapp.artistsmodels')),
+                ('artist_id', models.ManyToManyField(to='musicapp.ArtistsModel')),
             ],
             options={
                 'db_table': 'musics',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('generecover', models.FileField(upload_to=core_apps.musicapp.models.genres.genere_file_cover)),
                 ('created_at', models.BigIntegerField(default=core_apps.musicapp.models.genres.nowTimeStamp)),
                 ('updated_at', models.BigIntegerField(default=core_apps.musicapp.models.genres.nowTimeStamp)),
-                ('artist_id', models.ManyToManyField(to='musicapp.artistsmodels')),
+                ('artist_id', models.ManyToManyField(to='musicapp.ArtistsModel')),
                 ('music_id', models.ManyToManyField(to='musicapp.musicmodel')),
             ],
             options={
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=256, null=True)),
                 ('created_at', models.BigIntegerField(default=core_apps.musicapp.models.albums.nowTimeStamp)),
                 ('updated_at', models.BigIntegerField(default=core_apps.musicapp.models.albums.nowTimeStamp)),
-                ('artist_id', models.ManyToManyField(blank=True, to='musicapp.artistsmodels')),
+                ('artist_id', models.ManyToManyField(blank=True, to='musicapp.ArtistsModel')),
                 ('genre_id', models.ManyToManyField(blank=True, to='musicapp.generemodel')),
                 ('music_id', models.ManyToManyField(blank=True, to='musicapp.musicmodel')),
             ],
