@@ -3,6 +3,8 @@ from django.conf import settings
 
 def set_auth_cookies(response, access_token, refresh_token=None,) :
     access_token_lifetime = settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()
+    
+    
     cookie_settings = {
         'path' : settings.COOKIE_PATH,
         'secure' : settings.COOKIE_SECURE,

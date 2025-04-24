@@ -2,18 +2,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken 
-
-
+from time import time
 
 
 User = get_user_model()
 
-class RegisterSerializer(serializers.ModelSerializer):
+class RegisterUserSerializer(serializers.ModelSerializer):
     """
-        -This class is for adding user into database
-            #- METHOD : POST 
-            #- Add one user 
-            #- Represent data 
+        - Serializer for registering user and validating data 
+        - based on : User model
+        - METHOD : POST
     """
     password = serializers.CharField(write_only=True)
 
@@ -28,47 +26,63 @@ class RegisterSerializer(serializers.ModelSerializer):
             return user
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
+        req = super().to_representation(instance)
         token = RefreshToken.for_user(instance)
-        data['access'] = str(token.access_token)
-        data['refresh'] = str(token)
-        
-        return data
+        req['access'] = str(token.access_token)
+        req['refresh'] = str(token)
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
+        return req
 
 
 
 
 
 
-
-class LoginSerializer(serializers.Serializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
     """
-        -This class is for loging user into database
-            #- METHOD : POST 
-            #- validating data
+        - Serializer for updating user data
+        - based on : User model
+        - METHOD : POST
     """
-    username = serializers.CharField(required=False)
-    email = serializers.EmailField(required=False)
-    password = serializers.CharField(write_only=True)
-    
-    class Meta :
+    class Meta:
         model = User
-        fields = ['username', 'email', 'password']
-    
-    
-    def validate(self, attrs):
-        info = {}
-        if 'email' in attrs :
-            info['email'] = attrs['email']
-        
-        if 'username' in attrs :
-            info['username'] = attrs['username']
+        fields = ['id', 'first_name', 'last_name', 'profile']
+ 
+    def update(self, instance, validated_data):
+        try:
             
-        user = User.objects.get(**info)
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.upated_at = int(time())
+            instance.save()
+            
+            return instance
         
-        if user:
-            if not user.check_password(attrs['password']):
-                raise serializers.ValidationError('passowrd does not match')
-            attrs['id'] = user
-            return attrs
-        raise serializers.ValidationError('user not found')
+        except Exception as err:
+            pass
+        
+    def to_representation(self, instance):
+        req =super().to_representation(instance)  
+        req['username'] = instance.username
+        req['email'] = instance.email 
+        req['created_at'] = instance.created_at
+        req['updaetd_at'] = instance.updated_at
+        return req
+
+
+
+
+
+
+
+class GetMeUserSerializer(serializers.ModelSerializer):
+    """
+        - Serializer for return user data
+        - based on : User model
+        - METHOD : GET
+    """
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile', 'usertype', 'is_active', 'is_superuser', 'is_staff', 'last_login', 'created_at', 'updated_at']
+

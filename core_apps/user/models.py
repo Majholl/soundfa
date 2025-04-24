@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from os import path
 from time import time
 
 
@@ -12,6 +13,14 @@ from ..musicapp.models.playlists import PlaylistModel
     #- This model is using for authentication
 
 """
+def profile_file_cover(instance ,filename):
+    try:
+        splitedName = path.splitext(filename)
+        fileName = f'{instance.username}_{instance.updated_at}{splitedName[-1]}'
+        return path.join('users', fileName)
+    except Exception as err:
+        print(f'Error while editting users profile image name : error {str(err)}')
+
 
 def nowTimeStamp():
     return int(time())
@@ -24,8 +33,11 @@ class Users(AbstractUser):
         SUPERADMIN = 'superadmin', 'Superadmin'
         
     email = models.EmailField(db_index=True, unique=True)
-    playlists = models.ManyToManyField(to=PlaylistModel, blank=True)
+    playlists = models.ManyToManyField(to=PlaylistModel, blank=True, related_name='playlists_users')
+    
+    profile = models.ImageField(upload_to=profile_file_cover, blank=True)
     usertype = models.CharField(max_length=10, choices=userType.choices, default=userType.USER)
+    
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)
     
@@ -43,5 +55,6 @@ class Users(AbstractUser):
         return f'{self.email} - {self.usertype}'
     
     
-    
+    def get_full_name(self):
+        return super().get_full_name()
     

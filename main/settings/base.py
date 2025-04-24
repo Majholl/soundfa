@@ -74,11 +74,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : ('core_apps.musicapp.cookie_auth.CookieAuthentication',),}
 
 
+
 SIMPLE_JWT = {
     'SIGNING_KEY': getenv('SIGNING_KEY'),
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=int(getenv('ACCESS_TOKEN_LIFETIME'))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(getenv('REFRESH_TOKEN_LIFETIME'))),
+    'ROTATE_REFRESH_TOKENS': getenv('ROTATE_REFRESH_TOKENS'),
     'USER_ID_FIELD' : 'id',
     'USER_ID_CLAIM': 'user_id'
 }
@@ -162,7 +163,7 @@ DATABASES = {
 #-Cookies variable's
 COOKIE_NAME = 'access'
 
-COOKIE_SAMESITE = 'Lax'
+COOKIE_SAMESITE = 'None'
 
 COOKIE_PATH ='/'
 
