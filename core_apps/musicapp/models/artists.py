@@ -4,11 +4,7 @@ from os import path
 
 
 """
-    -This file is include all fields for the artists models 
-
-    ## ArtistsModel class which have all the fields needed
-    ## artists_direcrory function which save the given file in the defined storage
-
+    - Model of the artists in MYSQL db
 """
 
 
@@ -39,3 +35,4 @@ class ArtistsModel(models.Model):
 
     class Meta:
         db_table = 'artists'
+        verbose_name = 'Artist'
