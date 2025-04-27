@@ -1,7 +1,7 @@
 from django.db import models
 from time import time
 from os import path
-from .artists import ArtistsModels
+from .artists import ArtistsModel
 
 """
     -This file is include all fields for the music models 
@@ -32,7 +32,7 @@ class MusicModel(models.Model):
     duration = models.CharField(max_length=32, null=True)
     
     lyrics = models.TextField(null=True)
-    artist_id = models.ManyToManyField(to=ArtistsModels)
+    artist_id = models.ManyToManyField(to=ArtistsModel)
     
     musiccover = models.ImageField(upload_to=music_file_cover)
     musicfile = models.FileField(upload_to=music_file_cover)

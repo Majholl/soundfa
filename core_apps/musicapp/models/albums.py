@@ -1,9 +1,9 @@
 from django.db import models
 from time import time
 from os import path
-from .artists import ArtistsModels
+from .artists import ArtistsModel
 from .musics import MusicModel
-from .genres import GenereModel
+
 
 """
     -This file is include all fields for the albums models 
@@ -19,7 +19,7 @@ def album_file_cover(instance ,filename):
         fileName = f'{instance.title}_{instance.updated_at}{splitedName[-1]}'
         return path.join('albums', fileName)
     except Exception as err:
-        print(f'Error while editting music img name : error {str(err)}')
+        print(f'Error while editting album img name : error {str(err)}')
 
 
 def nowTimeStamp():
@@ -31,14 +31,11 @@ class AlbumModel(models.Model):
     title = models.CharField(max_length=32)
     albumcover = models.FileField(upload_to=album_file_cover)
 
-    artist_id = models.ManyToManyField(to=ArtistsModels, blank=True)
+    artist_id = models.ManyToManyField(to=ArtistsModel, blank=True)
     music_id = models.ManyToManyField(to=MusicModel, blank=True)
     
-    
-    genre_id = models.ManyToManyField(to=GenereModel, blank=True)
     totaltracks = models.BigIntegerField(null=True, blank=True)
     description = models.CharField(max_length=256, null=True)
-    
     
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)

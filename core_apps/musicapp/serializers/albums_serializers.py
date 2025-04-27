@@ -4,7 +4,7 @@ from loguru import logger
 from time import time
 
 from ..models.albums import AlbumModel
-from ..models.artists import ArtistsModels
+from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
 from ..models.genres import GenereModel
 
@@ -19,9 +19,8 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
             #- Represent data 
     """
     
-    artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModels.objects.all(), many=True)
+    artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModel.objects.all(), many=True)
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
-    # genre_id = serializers.PrimaryKeyRelatedField(required=False, queryset=GenereModel.objects.all(), many=True)
     totaltracks = serializers.IntegerField(required=False)
     description = serializers.CharField(required=False)
     
@@ -31,11 +30,11 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
         
     def create(self, validated_data):
         try:
-  
+            
             artist_id = validated_data.pop('artist_id', [])
             music_id = validated_data.pop('music_id', [])
             album = AlbumModel.objects.create(**validated_data)
-            
+            print(artist_id, music_id)
             if artist_id : 
                 album.artist_id.set(artist_id)
                 
@@ -46,7 +45,7 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
                 return album
             
         except Exception as err:
-            pass
+            print(err)
         
         
     def to_representation(self, instance):
