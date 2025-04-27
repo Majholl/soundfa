@@ -1,8 +1,8 @@
-
 from urllib.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import  PageNumberPagination
 from rest_framework import status
 from loguru import logger
 from django.db.models import Q
@@ -13,11 +13,9 @@ from typing import Optional
 
 
 
-from ..serializers.artists_serializers import CreateArtistsSerialiazer, GetArtitstsSerialiazer, UpdateDataArtistSerializer
+from ..serializers.artists_serializers import CreateArtistsSerialiazer, UpdateDataArtistSerializer, GetArtitstsSerialiazer
 from ..models.artists import ArtistsModel
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
-
-
 
 
 
@@ -26,21 +24,33 @@ from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_supera
 @api_view(['GET'])
 def get_all_artists(request:Request) -> Response:
     """
-        -This function return's all artist's information 
-            #- METHOD : GET
-            #- Returns list of all artist with fields id, name, image, realname, bio
-            #- supports params for better searching 
+        - Get artist data from db 
+        - METHOD : Get
+        - Json schema : -
     """
     try :
+        paginator = PageNumberPagination()
+        
         params = request.query_params
+        pages = {}
+        
         default_order = '-name'
         if 'order' in params :
             default_order = params['order']
             
         allArtists = ArtistsModel.objects.all().order_by((default_order))
-        serializers = GetArtitstsSerialiazer(allArtists , many=True)
-        logger.info('All artists requested')
-        return Response({'msg':'Artists list.', 'status':200, 'artists':serializers.data, 'total-artists':allArtists.count()}, status=status.HTTP_200_OK)
+        page = paginator.paginate_queryset(allArtists, request)
+        serializers = GetArtitstsSerialiazer(page , many=True)
+        
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
+        
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+            
+        return Response({'msg':'Artists list returend successfully.', **pages, 'status':200, 'data':serializers.data, 'total':allArtists.count()}, status=status.HTTP_200_OK)
         
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -54,13 +64,13 @@ def get_all_artists(request:Request) -> Response:
 @api_view(['GET'])
 def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
     """
-        -This function returns artist info based on the id and name of the artist
-        # if the path contains artist name after the URL://v1/api/artist/aritst-name  it returns the artist info
-        # else you can send these info's from the body in request.body
+        - Get artist data from db 
+        - if the path contains artist name after the URL://v1/api/artist/aritst-name  it returns the artist info
+        - else you can send these info's from the body in request.body
         
-        #-METHOD : GET
-        #-Returns list of all artist with fields id, name, image, realname, bio
-        #-supports params for better searching 
+        -METHOD : GET
+        -Returns list of the artist with fields id, name, image, realname, bio
+        -supports params for better searching 
     """
     try :
         data = request.data 
@@ -83,21 +93,13 @@ def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
 
         artist = ArtistsModel.objects.get(Q(**info_dict))
         serializers = GetArtitstsSerialiazer(artist)
-        logger.info(f'artist data asked : {str(serializers.data)}')
-        return Response({'msg':'Artist info found successfully.', 'status':200, 'artist-info':serializers.data} , status=status.HTTP_200_OK)
+        return Response({'msg':'Artist info found successfully.', 'status':200, 'data':serializers.data} , status=status.HTTP_200_OK)
     
     except ArtistsModel.DoesNotExist:
         return Response({'msg':'The artist not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
 
 
 

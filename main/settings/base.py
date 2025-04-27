@@ -70,8 +70,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 #-Rest settings
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES' : ('core_apps.musicapp.cookie_auth.CookieAuthentication',),}
+    'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES' : ('core_apps.musicapp.cookie_auth.CookieAuthentication',),
+    'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':20,
+    }
 
 
 

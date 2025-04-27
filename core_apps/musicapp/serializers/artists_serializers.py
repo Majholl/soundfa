@@ -109,10 +109,9 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
              
 class GetArtitstsSerialiazer(serializers.ModelSerializer):
     """
-        -This class called to returned artist or artists information 
-            #- METHOD : GET 
-            #- Get artist info 
-            #- Represent data 
+        - Serializer for retruning artist data
+        - Based on : Artist model
+        - METHOD : GET
     """
     class Meta:
         model = ArtistsModel
@@ -120,16 +119,13 @@ class GetArtitstsSerialiazer(serializers.ModelSerializer):
         read_only_fields = ["id"]
         
     def to_representation(self, instance):
-        req = {}
-        pk = instance.pk
-        
-        req['id'] = pk
-            
+        req = {} 
+        req['id'] = instance.pk
         req['name'] = instance.name
         req['image'] = instance.image.url
         req['bio'] = instance.bio
         req['realname'] = instance.realname
-        req['created_at'] = instance.created_at 
+        req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
-
+        
         return req
