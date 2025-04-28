@@ -58,7 +58,7 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
     """
         - Serializer for validting artist data to upating data
         - Based on : Artist model
-        - METHOD : POST
+        - METHOD : PUT
         - update artist object in MYSQL db
     """
     class Meta:

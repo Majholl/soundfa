@@ -1,5 +1,4 @@
 import os
-from urllib import request
 from rest_framework import serializers
 from time import time
 
@@ -8,14 +7,13 @@ from ..models.musics import MusicModel
 
 
 
-
-
 class CreateMusicSerializer(serializers.ModelSerializer):
     """
-        -This class is for creating music into database 
-        #- METHOD : POST
-        #- Add music into database
-        #- Represent data 
+        - Serializer for validting music data to add in database
+        - Based on : Music model
+        - METHOD : POST
+        - Create Music object in MYSQL db
+        - Add relation to the artist
     """
     artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
     musiccover = serializers.ImageField(required=False)
@@ -36,22 +34,13 @@ class CreateMusicSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         req = {}
-  
-        
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['artists_id'] = instance.artist_id.values('id', 'name')
-        req['musicfile'] = instance.musicfile.url
-        
-        if instance.duration : 
-            req['duration'] = instance.duration
-            
-        if instance.lyrics : 
-            req['lyrics'] = instance.lyrics
-            
-        if instance.musiccover :
-            req['musiccover'] = instance.musiccover.url
-            
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musicfile'] = instance.musicfile.url 
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
+        req['musiccover'] = instance.musiccover.url 
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -71,10 +60,10 @@ class CreateMusicSerializer(serializers.ModelSerializer):
 
 class UpdateMusicSerializer(serializers.ModelSerializer):
     """
-        -This class is for updating music data into database
-        #- METHOD : PUT
-        #- Update music into database
-        #- Represent data 
+        - Serializer for validting music data to add in database
+        - Based on : Music model
+        - METHOD : PUT
+        - Update Music object in MYSQL db
     """
     class Meta:
         model = MusicModel
@@ -82,7 +71,6 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
     
     
     def update(self, instance, validated_data):
-        
         try: 
             for atrr , value in validated_data.items():
                 setattr(instance, atrr, value)
@@ -97,26 +85,17 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         req = {}
-
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['artists_id'] =  instance.artist_id.values('id', 'name')
-        req['musicfile'] = instance.musicfile.url
-        
-        if instance.musiccover:
-            req['musiccover'] = instance.musiccover.url
-            
-        if instance.duration:
-            req['duration'] = instance.duration
-            
-        if instance.lyrics:
-            req['lyrics'] = instance.lyrics
-            
+        req['musicfile'] = instance.musicfile.url 
+        req['musiccover'] = instance.musiccover.url 
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
+        req['artists'] = instance.artist_id.values('id', 'name')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
         return req
-    
 
 
 
@@ -125,10 +104,9 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
 
 class GetMusicByNameSerializer(serializers.ModelSerializer):
     """
-        -This class called to returned musics info
-            #- METHOD : GET 
-            #- Get musics info 
-            #- Represent data 
+        - Serializer for retruning music data
+        - Based on : Music model
+        - METHOD : GET
     """
     
     download_url = serializers.SerializerMethodField()
@@ -150,18 +128,11 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
         req['id'] = pk     
         req['title'] = instance.title
         req['musicfile']  = instance.musicfile.url
-        req['musicfile-downloadable'] = self.get_download_url(instance)
-        
-        if instance.musiccover :
-            req['musiccover']  = instance.musiccover.url
-            
-        if instance.duration : 
-            req['duration']  = instance.duration
-            
-        if instance.lyrics : 
-            req['lyrics']  = instance.lyrics
-            
+        req['musiccover']  = instance.musiccover.url
+        req['duration']  = instance.duration
+        req['lyrics']  = instance.lyrics    
         req['artists']  = instance.artist_id.values('id', 'name') 
+        req['musicfile-downloadable'] = self.get_download_url(instance)
         req['created_at']  = instance.created_at   
         req['updated_at']  = instance.updated_at   
         

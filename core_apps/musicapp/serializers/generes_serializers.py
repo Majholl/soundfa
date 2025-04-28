@@ -10,7 +10,13 @@ from ..models.musics import MusicModel
 
 
 class CreateGenreSerializers(serializers.ModelSerializer):
-    
+    """
+        - Serializer for validting genere data to add in database
+        - Based on : genere model
+        - METHOD : POST
+        - Create genere object in MYSQL db
+        - Add relation to the artist , music , album
+    """
     
     artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModel.objects.all(), many=True)
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
@@ -53,11 +59,65 @@ class CreateGenreSerializers(serializers.ModelSerializer):
 
 
 
+class UpdateGenereSerializers(serializers.ModelSerializer):
+    """
+        - Serializer for validting genere data to add in database
+        - Based on : Genere model
+        - METHOD : PUT
+        - Update genere object in MYSQL db
+        - Update relation to the artist and musics and album
+    """
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'name', 'generecover', 'artist_id', 'music_id','album_id', 'description']
+        read_only_fields = ['id',]
+        
+    def update(self, instance, validated_data):
+        try:
+            if 'artist_id' in validated_data:
+                validated_data.pop('artist_id')
+                
+            if 'music_id' in validated_data:
+                validated_data.pop('music_id')
+            
+            if 'album_id' in validated_data:
+                validated_data.pop('album_id')
+            
+            for attr , value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.updated_at = int(time())
+            instance.save()
+            
+            return instance
+        
+        except Exception as err:
+            print(err)
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['generecover'] = instance.generecover.url
+        req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['albums'] = instance.album_id.values('id', 'title')
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
+        
+        
+        return req
+    
 
 
 
 class GetAllGenereSerializers(serializers.ModelSerializer):
-    
+    """
+        - Serializer for retruning genere data
+        - Based on : genere model
+        - METHOD : GET
+    """
     class Meta:
         model = GenereModel
         fields = ['id', 'name', 'description', 'artist_id', 'music_id', 'album_id', 'generecover']

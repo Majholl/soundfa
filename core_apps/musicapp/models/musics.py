@@ -4,11 +4,7 @@ from os import path
 from .artists import ArtistsModel
 
 """
-    -This file is include all fields for the music models 
-
-    ## MusicModel class which have all the fields needed
-    ## music_file_cover function which save the given file's in the defined storage
-
+    - Model of the musics in MYSQL db
 """
 
 
@@ -23,7 +19,6 @@ def music_file_cover(instance , filename):
 
 def nowTimeStamp():
     return int(time())
-
 
 
 class MusicModel(models.Model):

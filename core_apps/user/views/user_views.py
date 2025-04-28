@@ -115,7 +115,7 @@ def login_user(request):
             if not user.check_password(data['password']):
                 return Response({'msg':'passowrd is not correct.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             tokens = RefreshToken.for_user(user)
-            info = {'id':str(user.pk), 'frist_name':str(user.first_name), 'last_name':str(user.last_name), 'username':str(user.username), 'email':str(user.email), 'refresh':str(tokens), 'access':str(tokens.access_token), 'last_login':str(user.last_login), 'created_at':str(user.created_at), 'updated_at':str(user.updated_at)}
+            info = {'id':str(user.pk), 'first_name':str(user.first_name), 'last_name':str(user.last_name), 'username':str(user.username), 'email':str(user.email), 'refresh':str(tokens), 'access':str(tokens.access_token), 'last_login':str(user.last_login), 'created_at':str(user.created_at), 'updated_at':str(user.updated_at)}
             resp = Response({'msg':'User logged in successfully', 'status':200, 'data':info}, status=status.HTTP_200_OK)
             set_auth_cookies(resp, info['access'], info['refresh'])
             return resp
