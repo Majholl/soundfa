@@ -110,7 +110,6 @@ def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
 @api_view(['POST'])
 @permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_artist(request:Request) -> Response:
-    
     """
         - Add artist into database by reqeust.data info
         - METHOD : POST

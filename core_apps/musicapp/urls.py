@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import view_artists , view_musics , view_albums , view_genres, view_playlists
 
+
+
 artist_url = [
     path('artist/add/' , view_artists.add_artist, name='Artist-add'),
     path('artist/update/', view_artists.update_artist , name='Artist-update'),
@@ -12,16 +14,20 @@ artist_url = [
 
 
 
+
+
 music_url = [
-    path('music/add', view_musics.add_music, name='Music-add'),
+    path('music/add/', view_musics.add_music, name='Music-add'),
     path('music/update/', view_musics.update_music, name='Music-update'),
     path('music/', view_musics.get_music_by_musicname, name='Music-by-music-name'),
-    path('music/<str:name>', view_musics.get_music_by_musicname, name='Music-by-music-name'),
+    path('music/<str:name>/', view_musics.get_music_by_musicname, name='Music-by-music-name'),
     path('music/artist/', view_musics.get_music_by_artistname, name='Music-by-artist-name'),
-    path('music/artist/<str:name>', view_musics.get_music_by_artistname, name='Music-by-artist-name'),
-    path('music/delete/', view_musics.delete_music, name='Music-delete'),
+    path('music/artist/<str:name>/', view_musics.get_music_by_artistname, name='Music-by-artist-name'),
+    path('music/delete', view_musics.delete_music, name='Music-delete'),
     path('music/download/music/<str:filename>', view_musics.download_music, name='download-music'),
 ]
+
+
 
 
 
