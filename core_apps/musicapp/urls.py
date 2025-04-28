@@ -37,7 +37,7 @@ album_url = [
     path('album/albums/', view_albums.get_all_albums, name='Albums-list'),
     path('album/', view_albums.get_album_by_album_name, name='Album-by-Album-name'),
     path('album/<str:title>/', view_albums.get_album_by_album_name, name='Album-by-Album-name'),
-    path('album/delete/', view_albums.delete_album, name='Album-delete'), 
+    path('album/delete', view_albums.delete_album, name='Album-delete'), 
 ]
 
 
@@ -45,8 +45,9 @@ album_url = [
 
 genere_url = [
     path('genere/add/', view_genres.add_genere, name='Genere-add'),
+    path('genere/update/', view_genres.update_genere, name='Genere-update'),
     path('genere/', view_genres.get_all_genere, name='All-generes'),
-    path('genere/genere/', view_genres.get_genere, name='Get-generes'),
+    path('genere/generes/', view_genres.get_genere, name='Get-generes'),
     path('genere/delete/', view_genres.delete_genere, name='Genere-delete'),
 ]
 

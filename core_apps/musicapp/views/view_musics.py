@@ -251,7 +251,7 @@ def delete_music(request:Request) -> Response:
      
     """
         - Delete music from database by reqeust.data info
-        - METHOD : PUT
+        - METHOD : DELETE
         - Json schema : {'id':'id'}
         * Only admin's and super-admin's call this endpoint
     """
