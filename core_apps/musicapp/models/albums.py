@@ -6,13 +6,9 @@ from .musics import MusicModel
 
 
 """
-    -This file is include all fields for the albums models 
-
-    ## AlbumModel class which have all the fields needed
-    ## album_file_cover function which save the given file's in the defined storage
-
-
+    - Model of the albums in MYSQL db
 """
+
 def album_file_cover(instance ,filename):
     try:
         splitedName = path.splitext(filename)

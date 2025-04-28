@@ -13,10 +13,11 @@ from ..models.genres import GenereModel
 
 class CreateAlbumSerializers(serializers.ModelSerializer):
     """
-        -This class is for adding album into database
-            #- METHOD : POST 
-            #- Add one album 
-            #- Represent data 
+        - Serializer for validting album data to add in database
+        - Based on : Album model
+        - METHOD : POST
+        - Create album object in MYSQL db
+        - Add relation to the artist and musics
     """
     
     artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModel.objects.all(), many=True)
@@ -34,7 +35,7 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
             artist_id = validated_data.pop('artist_id', [])
             music_id = validated_data.pop('music_id', [])
             album = AlbumModel.objects.create(**validated_data)
-            print(artist_id, music_id)
+            
             if artist_id : 
                 album.artist_id.set(artist_id)
                 
@@ -49,9 +50,17 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
         
         
     def to_representation(self, instance):
-        req = super().to_representation(instance)
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['albumcover'] = instance.albumcover.url
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['totaltracks'] = instance.totaltracks
+        req['description'] = instance.description
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
+        
         return req
     
     
@@ -63,10 +72,11 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
     
 class UpdateAlbumSerializers(serializers.ModelSerializer):
     """
-        -This class is useing for updating info of the album 
-            #- METHOD : PUT 
-            #- Update album info 
-            #- Represent data 
+        - Serializer for validting album data to add in database
+        - Based on : Album model
+        - METHOD : PUT
+        - Update album object in MYSQL db
+        - Update relation to the artist and musics
     """
     class Meta:
         model = AlbumModel
@@ -97,8 +107,8 @@ class UpdateAlbumSerializers(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['title'] = instance.title
         req['albumcover'] = instance.albumcover.url
-        req['artist_id'] = instance.artist_id.values('id', 'name')
-        req['music_id'] = instance.music_id.values('id', 'title')
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musics'] = instance.music_id.values('id', 'title')
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
@@ -116,10 +126,11 @@ class UpdateAlbumSerializers(serializers.ModelSerializer):
 class GetAlbumByNameSerializer(serializers.ModelSerializer):
     
     """
-        -This class called to returned artist or album information 
-            #- METHOD : GET 
-            #- Get album info 
-            #- Represent data 
+        - Serializer for validting album data to get from database
+        - Based on : Album model
+        - METHOD : GET
+        - Get album object in MYSQL db
+        - Get relation to the artist and musics
     """
         
     class Meta:
@@ -133,10 +144,10 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['title'] = instance.title
         req['albumcover'] = instance.albumcover.url
-        req['artists'] = instance.artist_id.values('id', 'name', 'image')
-        req['musics'] = instance.music_id.values('id', 'title', 'musiccover', 'musicfile')
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name', 'image')
+        req['musics'] = instance.music_id.values('id', 'title', 'musiccover', 'musicfile')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
