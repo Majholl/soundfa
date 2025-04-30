@@ -31,7 +31,7 @@ api based project for music websites .
 |v1/api/music/add/ | POST | Add music |
 | v1/api/music/artist/ | GET | Get muisc by artist name |
 
-<b>Full doc </b>: <a href='https://www.postman.com/grey-escape-224969/soundfa'>Full Documentation api requests</a>
+<b>Full doc </b>: <a href="https://www.postman.com/grey-escape-224969/workspace/nameless">Full Documentation api requests</a>
 
 
 ### ⛓️How to Run 
