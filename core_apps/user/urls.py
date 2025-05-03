@@ -9,5 +9,7 @@ urlpatterns = [
     path('refresh/', user_views.refresh_token, name='Refresh user token'),
     path('getme/', user_views.get_me_user, name='Get me'),
     path('user/update/', user_views.update_user, name='Update user info'),
+    path('reset-password/', user_views.reset_password, name='Reset password'),
+    path('reset-password/confirmation/', user_views.reset_password_confirm, name='Reset password'),
     path('logout/', user_views.logout_user, name='Logout user')
 ]

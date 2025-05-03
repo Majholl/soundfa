@@ -1,15 +1,19 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import  AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken 
+
 from loguru import logger
 from django.utils import timezone
 from django.conf import settings
 from os import path
-import os 
+import os , random
 
+
+from ..emails import send_reset_passowrd_code
 from ..serializers.users_serializers import RegisterUserSerializer, UpdateUserSerializer, GetMeUserSerializer
 from ..manager import validate_email_address
 from ..cookies import set_auth_cookies
@@ -209,6 +213,62 @@ def update_user(request):
 
  
          
+
+
+
+
+@api_view(['POST'])
+def reset_password(request):
+    data = request.data
+    user = request.user
+    
+    try:
+       
+        code = f'{random.randint(000000,999999)}'
+        
+        if 'email' in data and not user.is_authenticated: 
+            user = User.objects.get(email= data['email'])
+            
+        if user.is_authenticated : 
+            send_reset_passowrd_code(user.email, user.username, code)
+            user.resest_password= code
+            user.save()
+            return Response({'msg':'Reset code sent.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'msg':'User with this email does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND) 
+       
+    except Exception as err:
+        return Response({'msg': 'Internal server error.', 'status': 500, 'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['POST'])
+def reset_password_confirm(request):
+    data = request.data
+    user = request.user
+    
+    try:
+       
+        if 'email' not in data or 'code' not in data or 'password' not in data :
+            return Response({'msg':'email or code or password is not provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = User.objects.get(email= data['email'])
+        if str(user.resest_password) != str(data['code']):
+                return Response({'msg':'Your code is wrong.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.password = make_password(data['password'])
+        user.resest_password = ""
+        user.save()
+        return Response({'msg':'Your password reseted successfully.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({'msg':'User with this email does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND) 
+       
+    except Exception as err:
+        return Response({'msg': 'Internal server error.', 'status': 500, 'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 
