@@ -13,7 +13,7 @@ from os import path
 import os , random
 
 
-from ..emails import send_reset_passowrd_code
+from ..emails import send_reset_password_code
 from ..serializers.users_serializers import RegisterUserSerializer, UpdateUserSerializer, GetMeUserSerializer
 from ..manager import validate_email_address
 from ..cookies import set_auth_cookies
@@ -230,7 +230,7 @@ def reset_password(request):
             user = User.objects.get(email= data['email'])
             
         if user.is_authenticated : 
-            send_reset_passowrd_code(user.email, user.username, code)
+            send_reset_password_code.delay(user.email, user.username, code)
             user.resest_password= code
             user.save()
             return Response({'msg':'Reset code sent.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)

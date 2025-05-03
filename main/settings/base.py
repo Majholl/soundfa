@@ -199,6 +199,8 @@ STATIC_URL = 'static/'
 
 STATIC_DIR = 'static/'
 
+STATIC_ROOT = path.join(BASE_DIR, 'static')
+
 MEDIA_DIR = '/media/'
 
 MEDIA_URL = '/media/'
