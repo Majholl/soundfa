@@ -231,7 +231,7 @@ def reset_password(request):
             
         if user.is_authenticated : 
             send_reset_password_code.delay(user.email, user.username, code)
-            user.resest_password= code
+            user.reset_password= code
             user.save()
             return Response({'msg':'Reset code sent.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
         
@@ -254,11 +254,11 @@ def reset_password_confirm(request):
             return Response({'msg':'email or code or password is not provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.get(email= data['email'])
-        if str(user.resest_password) != str(data['code']):
+        if str(user.reset_password) != str(data['code']):
                 return Response({'msg':'Your code is wrong.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
 
         user.password = make_password(data['password'])
-        user.resest_password = ""
+        user.reset_password = ""
         user.save()
         return Response({'msg':'Your password reseted successfully.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
         

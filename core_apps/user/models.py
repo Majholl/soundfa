@@ -38,7 +38,7 @@ class Users(AbstractUser):
     profile = models.ImageField(upload_to=profile_file_cover, blank=True)
     usertype = models.CharField(max_length=10, choices=userType.choices, default=userType.USER)
     
-    resest_password = models.CharField(max_length=6, null=True)
+    reset_password = models.CharField(max_length=6, null=True)
     
     created_at = models.BigIntegerField(default=nowTimeStamp)
     updated_at = models.BigIntegerField(default=nowTimeStamp)
