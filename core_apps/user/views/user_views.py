@@ -13,7 +13,7 @@ from os import path
 import os , random
 
 
-from ..emails import send_reset_password_code_email
+from ..emails import send_reset_password_code_email, confirmation_reset_password_email
 from ..serializers.users_serializers import RegisterUserSerializer, UpdateUserSerializer, GetMeUserSerializer
 from ..manager import validate_email_address
 from ..cookies import set_auth_cookies
@@ -217,6 +217,9 @@ def update_user(request):
 
 
 
+
+
+
 @api_view(['POST'])
 def reset_password(request):
     data = request.data
@@ -243,6 +246,12 @@ def reset_password(request):
 
 
 
+
+
+
+
+
+
 @api_view(['POST'])
 def reset_password_confirm(request):
     data = request.data
@@ -263,6 +272,8 @@ def reset_password_confirm(request):
             return Response({'msg':'Your are block due to incorrct reset password code.', 'status':429}, status=status.HTTP_429_TOO_MANY_REQUESTS)
  
         if str(user.reset_password) != str(data['code']):
+                if user.reset_password is None:
+                    return Response({'msg':'No reset password request.', 'status':400}, status=status.HTTP_400)
                 user.reset_password_attempt_count
                 return Response({'msg':'Your code is wrong.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
@@ -272,6 +283,7 @@ def reset_password_confirm(request):
         
         user.password = make_password(data['password'])
         user.reset_password_code_expiration
+        confirmation_reset_password_email.delay(user.email, user.username)
         user.save()
         return Response({'msg':'Your password reseted successfully.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
         
