@@ -7,7 +7,7 @@ from celery import shared_task
 
 
 @shared_task
-def send_reset_password_code(email, username, code):
+def send_reset_password_code_email(email, username, code):
     subject = ('Your reset passowrd code')
     from_email = settings.DEFAULT_FROM_EMAIL
     recipient_list = [email]

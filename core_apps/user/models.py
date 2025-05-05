@@ -62,14 +62,35 @@ class Users(AbstractUser):
         db_table = 'users'
         ordering = ['-created_at']
         
-    def __str__(self):
-        return f'{self.email} - {self.usertype}'
-    
+        
     def set_resest_password(self,  code:str):
         self.reset_password = code
         self.reset_password_expire_time = timezone.now() + settings.RESET_PASSWORD_EXPIRE_TIME
         self.save()
         
+    @property
+    def validate_reset_password_code_expiration(self):
+        return (timezone.now() - self.reset_password_expire_time) <= settings.RESET_PASSWORD_EXPIRE_TIME
+
+    @property
+    def reset_password_code_expiration(self):
+        self.reset_password = None
+        self.reset_password_expire_time = None
+        self.reset_password_attempt = 0 
+        self.save()
+        
+    @property
+    def reset_password_attempt_count(self):
+        if self.reset_password_attempt <4:
+            self.reset_password_attempt +=1 
+        if self.reset_password_attempt >= 3 :
+            self.account_status = Users.AccountStatus.LOCKED
+        self.save()
+          
     def get_full_name(self):
         return super().get_full_name()
-    
+        
+        
+        
+    def __str__(self):
+        return f'{self.email} - {self.usertype}'

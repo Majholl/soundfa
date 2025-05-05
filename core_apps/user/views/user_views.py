@@ -13,7 +13,7 @@ from os import path
 import os , random
 
 
-from ..emails import send_reset_password_code
+from ..emails import send_reset_password_code_email
 from ..serializers.users_serializers import RegisterUserSerializer, UpdateUserSerializer, GetMeUserSerializer
 from ..manager import validate_email_address
 from ..cookies import set_auth_cookies
@@ -230,8 +230,8 @@ def reset_password(request):
             user = User.objects.get(email= data['email'])
             
         if user.is_authenticated : 
-            send_reset_password_code.delay(user.email, user.username, code)
-            user.reset_password= code
+            send_reset_password_code_email.delay(user.email, user.username, code)
+            user.set_resest_password(code)
             user.save()
             return Response({'msg':'Reset code sent.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
         
@@ -253,12 +253,25 @@ def reset_password_confirm(request):
         if 'email' not in data or 'code' not in data or 'password' not in data :
             return Response({'msg':'email or code or password is not provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.get(email= data['email'])
-        if str(user.reset_password) != str(data['code']):
-                return Response({'msg':'Your code is wrong.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
 
+        user = User.objects.get(email= data['email'])
+        
+        if user.account_status == user.AccountStatus.LOCKED:
+            return Response({'msg':'You are block for security reason please try again.', 'status':403}, status=status.HTTP_403_FORBIDDEN)
+        
+        if user.reset_password_attempt >= 3:
+            return Response({'msg':'Your are block due to incorrct reset password code.', 'status':429}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+ 
+        if str(user.reset_password) != str(data['code']):
+                user.reset_password_attempt_count
+                return Response({'msg':'Your code is wrong.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not user.validate_reset_password_code_expiration :
+            user.reset_password_code_expiration
+            return Response({'msg':'Code is expired.', 'status':403}, status=status.HTTP_403_FORBIDDEN)
+        
         user.password = make_password(data['password'])
-        user.reset_password = ""
+        user.reset_password_code_expiration
         user.save()
         return Response({'msg':'Your password reseted successfully.', 'user':user.email, 'status':200}, status=status.HTTP_200_OK)
         
