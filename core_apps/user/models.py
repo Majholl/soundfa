@@ -2,55 +2,70 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.conf import settings
 from django.db import models
-from os import path
 from time import time
+from os import path
+from loguru import logger
+
 
 from .manager import customUserManager
 from ..musicapp.models.playlists import PlaylistModel
 
-"""
 
-    -This file is include all fields for the users 
-    #- This model is using for authentication
+# -------------------------------------------------------------------
+# Users Model
+# This model extends Django's AbstractUser to add custom fields and logic:
+# - User types: normal user, admin, superadmin (via choices)
+# - Account status: active, deactive, locked (via choices)
+# - Custom profile image upload path using a timestamped filename
+# - Many-to-many relationship with playlists
+# - Password reset system with code, expiration time, and attempt counter
+# - Timestamp fields for account creation and last update
+# -------------------------------------------------------------------
 
-"""
+
+
 def profile_file_cover(instance ,filename):
     try:
-        splitedName = path.splitext(filename)
-        fileName = f'{instance.username}_{instance.updated_at}{splitedName[-1]}'
-        return path.join('users', fileName)
+        
+        split_name = path.splitext(filename)
+        file_name = f'{instance.username}_{int(time())}{split_name[-1]}'
+        return path.join('users', file_name)
+    
     except Exception as err:
-        print(f'Error while editting users profile image name : error {str(err)}')
-
-
-def nowTimeStamp():
-    return int(time())
-
-
+        logger.info(f'Error saving user profile image name | user-id : {instance.pk} | {str(err)}')
+        print(f'Error saving user profile image name | user-id : {instance.pk} | {str(err)}')
+          
+          
+          
 class Users(AbstractUser):
-    class userType(models.TextChoices):
+    
+    class UserType(models.TextChoices):
         USER = 'user', 'User'
         ADMIN = 'admin', 'Admin'
         SUPERADMIN = 'superadmin', 'Superadmin'
     
     class AccountStatus(models.TextChoices):
         ACTIVE = 'active', 'Active'
+        DEACTIVE = 'deactive', 'Deactive'
         LOCKED = 'locked', 'Locked'
+
+
+  
         
-    email = models.EmailField(db_index=True, unique=True)
-    playlists = models.ManyToManyField(to=PlaylistModel, blank=True, related_name='playlists_users')
+    email = models.EmailField('Email address', db_index=True, unique=True)
+    playlists = models.ManyToManyField(verbose_name='Playlist', to=PlaylistModel, blank=True, related_name='playlists_users')
     
-    profile = models.ImageField(upload_to=profile_file_cover, blank=True)
-    usertype = models.CharField(max_length=10, choices=userType.choices, default=userType.USER)
+    profile = models.ImageField('User profile', upload_to=profile_file_cover, blank=True)
+    usertype = models.CharField('User type', max_length=10, choices=UserType.choices, default=UserType.USER)
     
-    account_status = models.CharField(max_length=8, choices=AccountStatus.choices, default=AccountStatus.ACTIVE)
+    account_status = models.CharField('Account status', max_length=8, choices=AccountStatus.choices, default=AccountStatus.ACTIVE)
     
-    reset_password = models.CharField(max_length=6, null=True)
-    reset_password_expire_time = models.DateTimeField(null=True, blank=True)
-    reset_password_attempt = models.IntegerField(default=0)
+    reset_password = models.CharField('Reset password', max_length=6, null=True)
+    reset_password_expire_time = models.DateTimeField('Reset password expiration time', null=True, blank=True)
+    reset_password_attempt = models.IntegerField('Reset password attempt', default=0)
     
-    created_at = models.BigIntegerField(default=nowTimeStamp)
-    updated_at = models.BigIntegerField(default=nowTimeStamp)
+    created_at = models.DateTimeField('User creatation datetime', auto_now_add=True)
+    updated_at = models.DateTimeField('Last modification of user', auto_now=True)
     
     
     date_joined = None
@@ -59,6 +74,7 @@ class Users(AbstractUser):
     objects = customUserManager()
     
     class Meta:
+        verbose_name = 'User'
         db_table = 'users'
         ordering = ['-created_at']
         
@@ -87,10 +103,11 @@ class Users(AbstractUser):
             self.account_status = Users.AccountStatus.LOCKED
         self.save()
           
+        
+          
     def get_full_name(self):
         return super().get_full_name()
         
-        
-        
+    
     def __str__(self):
         return f'{self.email} - {self.usertype}'

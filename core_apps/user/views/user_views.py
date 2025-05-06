@@ -1,14 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
+from django.utils import timezone
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import  AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken 
-
 from loguru import logger
-from django.utils import timezone
-from django.conf import settings
 from os import path
 import os , random
 
@@ -17,7 +16,6 @@ from ..emails import send_reset_password_code_email, confirmation_reset_password
 from ..serializers.users_serializers import RegisterUserSerializer, UpdateUserSerializer, GetMeUserSerializer
 from ..manager import validate_email_address
 from ..cookies import set_auth_cookies
-
 
 
 User = get_user_model()
@@ -72,6 +70,15 @@ def register_user(request):
         
     except Exception as err:    
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
 
 
 

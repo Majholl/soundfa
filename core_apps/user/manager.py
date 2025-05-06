@@ -18,15 +18,15 @@ class customUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         
         if not email :
-            raise ValueError('An email address must be provided.')
+            raise ValueError('Email address must be provided.')
         
         if not password:
-            raise ValueError('A password must be provided.')
+            raise ValueError('Password must be provided.')
         
         email = self.normalize_email(email)
         verified_email = validate_email_address(email=email)
         if not verified_email:
-            return ValidationError('An email address is not valied ')
+            return ValidationError('Email address is not valied.')
         
         
         user = self.model(email=email, **extra_fields)
