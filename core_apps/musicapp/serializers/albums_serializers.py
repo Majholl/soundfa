@@ -1,7 +1,8 @@
-
 from rest_framework import serializers
 from loguru import logger
 from time import time
+from itertools import chain
+
 
 from ..models.albums import AlbumModel
 from ..models.artists import ArtistsModel
@@ -141,13 +142,33 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         req = {}
+        
+        music_artist_info = {}
+        
+        music_info = instance.music_id.values('id', 'title', 'duration', 'musiccover', 'musicfile')
+       
+        for i in instance.music_id.values_list('id', flat=True):
+            music = MusicModel.objects.get(id = i)
+            artist_data = music.artist_id.values('id', 'name', 'realname', 'bio' ,'image')
+       
+        for i in music_info :
+            i['music_id'] = i['id']
+            i.pop('id')
+            music_artist_info.update(i)
+        
+        for j in artist_data:
+            j['artist_id'] = j['id']
+            j.pop('id')
+            music_artist_info.update(j)
+                  
+            
         req['id'] = instance.pk
         req['title'] = instance.title
         req['albumcover'] = instance.albumcover.url
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name', 'image')
-        req['musics'] = instance.music_id.values('id', 'title', 'musiccover', 'musicfile')
+        req['musics'] = music_artist_info
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
