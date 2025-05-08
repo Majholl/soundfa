@@ -25,8 +25,8 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
         user = User.objects.create(**validated_data)
-    
-        if not settings.OTP_REQUIRED :
+        
+        if settings.OTP_REQUIRED == "True":
             user.set_otp(generate_code())
         else:
             user.account_status = user.AccountStatus.ACTIVE 
