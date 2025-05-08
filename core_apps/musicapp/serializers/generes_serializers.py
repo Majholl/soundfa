@@ -50,12 +50,20 @@ class CreateGenreSerializers(serializers.ModelSerializer):
             pass
         
     def to_representation(self, instance):
-        req = super().to_representation(instance)
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['cover'] = instance.generecover.url
+        req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['albums'] = instance.album_id.values('id', 'title')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
-        return req
-           
         
+        
+        return req
+    
 
 
 
@@ -98,7 +106,7 @@ class UpdateGenereSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['name'] = instance.name
-        req['generecover'] = instance.generecover.url
+        req['cover'] = instance.generecover.url
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
@@ -121,4 +129,19 @@ class GetAllGenereSerializers(serializers.ModelSerializer):
     class Meta:
         model = GenereModel
         fields = ['id', 'name', 'description', 'artist_id', 'music_id', 'album_id', 'generecover']
+    
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['cover'] = instance.generecover.url
+        req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['albums'] = instance.album_id.values('id', 'title')
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
         
+        
+        return req
+    

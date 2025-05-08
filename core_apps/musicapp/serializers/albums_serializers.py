@@ -54,7 +54,7 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['albumcover'] = instance.albumcover.url
+        req['cover'] = instance.albumcover.url
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
         req['totaltracks'] = instance.totaltracks
@@ -107,7 +107,7 @@ class UpdateAlbumSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['albumcover'] = instance.albumcover.url
+        req['cover'] = instance.albumcover.url
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
         req['totaltracks'] = instance.totaltracks
@@ -164,7 +164,7 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
             
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['albumcover'] = instance.albumcover.url
+        req['cover'] = instance.albumcover.url
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name', 'image')

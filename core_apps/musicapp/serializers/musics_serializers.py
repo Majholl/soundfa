@@ -40,7 +40,7 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         req['musicfile'] = instance.musicfile.url 
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
-        req['musiccover'] = instance.musiccover.url 
+        req['cover'] = instance.musiccover.url 
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -88,7 +88,7 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['title'] = instance.title
         req['musicfile'] = instance.musicfile.url 
-        req['musiccover'] = instance.musiccover.url 
+        req['cover'] = instance.musiccover.url 
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
         req['artists'] = instance.artist_id.values('id', 'name')
@@ -128,7 +128,7 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
         req['id'] = pk     
         req['title'] = instance.title
         req['musicfile']  = instance.musicfile.url
-        req['musiccover']  = instance.musiccover.url
+        req['cover']  = instance.musiccover.url
         req['duration']  = instance.duration
         req['lyrics']  = instance.lyrics    
         req['artists']  = instance.artist_id.values('id', 'name') 
