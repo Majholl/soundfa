@@ -58,7 +58,12 @@ class Users(AbstractUser):
     profile = models.ImageField('User profile', upload_to=profile_file_cover, blank=True)
     usertype = models.CharField('User type', max_length=10, choices=UserType.choices, default=UserType.USER)
     
-    account_status = models.CharField('Account status', max_length=8, choices=AccountStatus.choices, default=AccountStatus.ACTIVE)
+    account_status = models.CharField('Account status', max_length=8, choices=AccountStatus.choices, default=AccountStatus.DEACTIVE)
+    is_active = models.BooleanField('Account activation', default=0)
+    
+    otp = models.CharField('One time password', max_length=6, null=True)
+    otp_expire_time = models.DateTimeField('One time password expiration', null=True, blank=True)
+    otp_attempt = models.IntegerField('One time password attempt', default=0)
     
     reset_password = models.CharField('Reset password', max_length=6, null=True)
     reset_password_expire_time = models.DateTimeField('Reset password expiration time', null=True, blank=True)
@@ -79,10 +84,45 @@ class Users(AbstractUser):
         ordering = ['-created_at']
         
         
+    def set_otp(self, code:str):
+        self.otp = code
+        self.otp_expire_time = timezone.now() + settings.OTP_EXPIRE_TIME
+        self.save()    
+      
+        
+    @property
+    def validate_otp_expiration(self):
+        return (timezone.now() - self.otp_expire_time) <= settings.OTP_EXPIRE_TIME
+   
+   
+   
+        
+    @property
+    def otp_attempt_count(self):
+        if self.otp_attempt <4:
+            self.otp_attempt +=1 
+        if self.otp_attempt >= 3 :
+            self.account_status = Users.AccountStatus.LOCKED
+        self.save()        
+        
+        
+    @property
+    def otp_code_expiration(self):
+        self.otp = None
+        self.otp_expire_time = None
+        self.otp_attempt = 0 
+        self.save()    
+        
+        
+        
+        
+        
+        
     def set_resest_password(self,  code:str):
         self.reset_password = code
         self.reset_password_expire_time = timezone.now() + settings.RESET_PASSWORD_EXPIRE_TIME
         self.save()
+        
         
     @property
     def validate_reset_password_code_expiration(self):

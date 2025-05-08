@@ -41,4 +41,8 @@ DEFAULT_FROM_EMAIL=getenv('DEFAULT_FROM_EMAIL')
 
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024 # 10 Mg
 
+OTP_REQUIRED = True
+
+OTP_EXPIRE_TIME = timedelta(minutes=5)
+
 RESET_PASSWORD_EXPIRE_TIME = timedelta(minutes=5)

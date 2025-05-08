@@ -5,6 +5,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from time import time
 
 
+from ..utils import generate_code
+
 User = get_user_model()
 
 class RegisterUserSerializer(serializers.ModelSerializer):
@@ -22,14 +24,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
         user = User.objects.create(**validated_data)
+        user.set_otp(generate_code())
+        
         if user:
             return user
 
+
     def to_representation(self, instance):
         req = super().to_representation(instance)
-        token = RefreshToken.for_user(instance)
-        req['access'] = str(token.access_token)
-        req['refresh'] = str(token)
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         return req
