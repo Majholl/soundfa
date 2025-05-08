@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken 
 from time import time
+from django.conf import settings
 
 
 from ..utils import generate_code
@@ -24,8 +25,14 @@ class RegisterUserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data['password'])
         user = User.objects.create(**validated_data)
-        user.set_otp(generate_code())
-        
+    
+        if not settings.OTP_REQUIRED :
+            user.set_otp(generate_code())
+        else:
+            user.account_status = user.AccountStatus.ACTIVE 
+            user.is_active = 1
+            user.save()
+            
         if user:
             return user
 

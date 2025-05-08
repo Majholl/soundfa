@@ -64,9 +64,10 @@ def register_user(request) -> Request:
         if serializer.is_valid():
             serializer.save()
             user = User.objects.get(id= serializer.data['id'])
-            user_encode = base64.urlsafe_b64encode(f'{user.pk}'.encode()).decode()
-            link = request.build_absolute_uri(reverse('Verify_otp', args=[user_encode, user.otp]))
-            send_otp_link_email.delay(user.email, user.username, link)
+            if user.otp :
+                user_encode = base64.urlsafe_b64encode(f'{user.pk}'.encode()).decode()
+                link = request.build_absolute_uri(reverse('Verify_otp', args=[user_encode, user.otp]))
+                send_otp_link_email.delay(user.email, user.username, link)
             logger.info(f'New user registered. | User details: {str(serializer.data)}')
             return Response({'msg':'User registered successfully.', 'status':201, 'data':serializer.data}, status=status.HTTP_201_CREATED)
         
