@@ -7,7 +7,7 @@ class AllowAuthenticatedAndAdminsAndSuperAdmin(BasePermission):
         user = request.user
         if not user.is_authenticated: 
             return False
-        return bool(user.is_authenticated or user.usertype == 'admin' or user.is_superuser)
+        return bool(user.is_authenticated and (user.usertype == 'admin' or user.is_superuser))
     
     
     
