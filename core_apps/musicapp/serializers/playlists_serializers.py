@@ -42,7 +42,7 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['playlistcover'] = instance.playlistcover.url
+        req['cover'] = instance.playlistcover.url
         req['musics'] = music_info
         req['user'] = user_id.pk
         req['totaltracks'] = instance.totaltracks
@@ -93,7 +93,7 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['playlistcover'] = instance.playlistcover.url
+        req['cover'] = instance.playlistcover.url
         req['musics'] = music_info
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
@@ -134,7 +134,7 @@ class GetAllListsSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['playlistcover'] = instance.playlistcover.url
+        req['cover'] = instance.playlistcover.url
         req['musics'] = music_info
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
