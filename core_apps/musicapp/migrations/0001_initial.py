@@ -90,8 +90,8 @@ class Migration(migrations.Migration):
                 ('playlistcover', models.FileField(upload_to=core_apps.musicapp.models.playlists.playlist_file_cover)),
                 ('totaltracks', models.BigIntegerField(blank=True, null=True)),
                 ('description', models.CharField(max_length=256, null=True)),
-                ('created_at', models.BigIntegerField(default=core_apps.musicapp.models.playlists.nowTimeStamp)),
-                ('updated_at', models.BigIntegerField(default=core_apps.musicapp.models.playlists.nowTimeStamp)),
+                ('created_at', models.BigIntegerField(default=0)),
+                ('updated_at', models.BigIntegerField(default=0)),
                 ('music_id', models.ManyToManyField(blank=True, to='musicapp.musicmodel')),
             ],
             options={
