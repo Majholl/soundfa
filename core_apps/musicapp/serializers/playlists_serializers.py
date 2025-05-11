@@ -41,11 +41,6 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         
-        music_info = []
-        music = instance.music_id.all()
-        for i in music:
-            music_info.append([i.pk, i.title, i.musicfile.url, i.musiccover.url])
-  
         user_id = self.context['request'].user
         req = {}
         req['id'] = instance.pk
@@ -53,15 +48,14 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = music_info
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
 
         return req
-
-
+    
 
 
 
@@ -93,11 +87,6 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         
-        music_info = []
-        music = instance.music_id.all()
-        for i in music:
-            music_info.append([i.pk, i.title, i.musicfile.url, i.musiccover.url])
-  
         user_id = self.context['request'].user
         req = {}
         req['id'] = instance.pk
@@ -105,17 +94,14 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = music_info
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
 
         return req
-
-
-
-
+    
     
     
     
@@ -140,11 +126,6 @@ class GetAllListsSerializers(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         
-        music_info = []
-        music = instance.music_id.all()
-        for i in music:
-            music_info.append([i.pk, i.title, i.musicfile.url, i.musiccover.url])
-  
         user_id = self.context['request'].user
         req = {}
         req['id'] = instance.pk
@@ -152,13 +133,15 @@ class GetAllListsSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = music_info
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
 
         return req
+    
+    
     
     
 class GetAllPublicListsSerializers(serializers.ModelSerializer):
@@ -169,21 +152,19 @@ class GetAllPublicListsSerializers(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         
-        music_info = []
-        music = instance.music_id.all()
-        for i in music:
-            music_info.append([i.pk, i.title, i.musicfile.url, i.musiccover.url])
-  
+        user_id = self.context['request'].user
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
         req['cover'] = instance.cover.url
-        req['playlist_public'] = 'public'
-        req['musics'] = music_info
+        req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
+        req['user'] = user_id.pk
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
 
         return req
+    
         

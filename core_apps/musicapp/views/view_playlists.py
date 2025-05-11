@@ -2,11 +2,13 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django.conf import settings
 from os import path
 import os
+
 
 
 from ..serializers.playlists_serializers import CreatePlayListSerializers, UpdatePlayListSerializers, GetAllListsSerializers, GetAllPublicListsSerializers
@@ -16,17 +18,16 @@ from ..models.playlists import PlaylistModel
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
+
+
 User = get_user_model()
 
 
 
 
 
-
-
-
 @api_view(['GET'])
-def get_all_public_playlist(request):
+def get_all_public_playlist(request:Request) -> Response:
     
     try:    
         paginator = PageNumberPagination()
@@ -34,7 +35,7 @@ def get_all_public_playlist(request):
         
         playlists = PlaylistModel.objects.filter(public_playlist= 1).all()
         page = paginator.paginate_queryset(playlists, request)
-        serializers = GetAllPublicListsSerializers(instance=page, many=True)
+        serializers = GetAllPublicListsSerializers(instance=page, many=True, context={'request':request})
         
         next_link = paginator.get_next_link() 
         prev_link = paginator.get_previous_link()
@@ -57,7 +58,7 @@ def get_all_public_playlist(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_all_playlist_user(request):
+def get_all_playlist_user(request:Request) -> Response:
     user = request.user
     try:    
         paginator = PageNumberPagination()
@@ -88,7 +89,7 @@ def get_all_playlist_user(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_playlist_user(request):
+def get_playlist_user(request:Request) -> Response:
     data = request.data
     user = request.user
     try:    
@@ -126,7 +127,7 @@ def get_playlist_user(request):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_playlist(request):
+def delete_playlist(request:Request) -> Response:
     data = request.data
     user = request.user
     try:
