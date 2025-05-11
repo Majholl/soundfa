@@ -39,6 +39,12 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         req = super().to_representation(instance)
+        
+        if settings.OTP_REQUIRED == "False":
+            token = RefreshToken().for_user(instance)
+            req['access'] = str(token.access_token)
+            req['refresh'] = str(token)
+            
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         return req
