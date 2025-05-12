@@ -1,6 +1,7 @@
 from django.db import models
 from os import path
 from loguru import logger
+from time import time
 
 from .musics import MusicModel
 
@@ -21,7 +22,7 @@ def playlist_file_cover(instance ,filename):
     try:
         
         splitedName = path.splitext(filename)
-        fileName = f'{instance.title}_{instance.updated_at}{splitedName[-1]}'
+        fileName = f'{instance.title}_{int(time())}{splitedName[-1]}'
         return path.join('playlists', fileName)
    
     except Exception as err:
@@ -33,10 +34,10 @@ def playlist_file_cover(instance ,filename):
 class PlaylistModel(models.Model):
     
     title = models.CharField('Playlist title', max_length=32)
-    cover = models.FileField('Playlist cover', upload_to=playlist_file_cover)
+    cover = models.FileField('Playlist cover', upload_to=playlist_file_cover, blank=True, null=True)
     public_playlist = models.SmallIntegerField('Public Playlist', default=0)
     
-    music_id = models.ManyToManyField(verbose_name='Musics', to=MusicModel, blank=True)
+    music_id = models.ManyToManyField(verbose_name='Musics', to=MusicModel, blank=True, related_name='music_id')
     
     totaltracks = models.BigIntegerField('Playlist tracks count', null=True, blank=True)
     description = models.CharField('playlist description', max_length=256, null=True)
@@ -49,13 +50,13 @@ class PlaylistModel(models.Model):
         ordering = ['-title']
     
     
-    def make_playlisy_public(self):
+    def make_playlist_public(self):
         if self.public_playlist == 0:
             self.public_playlist = 1 
             self.save()
             
             
-    def make_playlisy_private(self):
+    def make_playlist_private(self):
         if self.public_playlist == 1:
             self.public_playlist = 0 
             self.save()       

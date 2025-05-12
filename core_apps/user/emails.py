@@ -24,9 +24,10 @@ def send_reset_password_code_email(email, username, code):
     
     try:
         email.send()
+        
     except Exception as err:
         pass
-       
+
        
        
        

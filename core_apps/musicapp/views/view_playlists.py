@@ -28,7 +28,11 @@ User = get_user_model()
 
 @api_view(['GET'])
 def get_all_public_playlist(request:Request) -> Response:
-    
+    """
+        - Get all public playlists data from db 
+        - METHOD : Get
+        - Json schema : -
+    """    
     try:    
         paginator = PageNumberPagination()
         pages = {}
@@ -59,6 +63,11 @@ def get_all_public_playlist(request:Request) -> Response:
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_playlist_user(request:Request) -> Response:
+    """
+        - Get all user playlists data from db 
+        - METHOD : Get
+        - Json schema : -
+    """
     user = request.user
     try:    
         paginator = PageNumberPagination()
@@ -114,16 +123,7 @@ def get_playlist_user(request:Request) -> Response:
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+     
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -202,10 +202,6 @@ def add_playlist(request:Response) -> Response:
                 if not musics.exists():
                     return Response({'msg': 'No music found with provided ID(s).', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
     
-    
-        if 'cover' not in data:
-            return Response({'msg':'Provide a cover for the playlsit.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
         if 'cover' in data:
             if len(data['cover']) == 0 or len(data.getlist('cover')) > 1 :
                 return Response({'msg':'One cover for playlist must be provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
