@@ -132,6 +132,7 @@ class GetAllGenereSerializers(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         req = {}
+        
         req['id'] = instance.pk
         req['name'] = instance.name
         req['cover'] = instance.generecover.url

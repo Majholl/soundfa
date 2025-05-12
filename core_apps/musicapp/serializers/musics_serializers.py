@@ -124,12 +124,13 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         req = {}
         pk = instance.pk
-        
+
         req['id'] = pk     
         req['title'] = instance.title
         req['musicfile']  = instance.musicfile.url
         req['cover']  = instance.musiccover.url
         req['duration']  = instance.duration
+        req['genere'] = instance.genere_id.values('name',)
         req['lyrics']  = instance.lyrics    
         req['artists']  = instance.artist_id.values('id', 'name') 
         req['musicfile-downloadable'] = self.get_download_url(instance)

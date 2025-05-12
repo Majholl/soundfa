@@ -32,7 +32,7 @@ class GenereModel(models.Model):
     description = models.CharField(max_length=256, null=True, blank=True)
     
     artist_id = models.ManyToManyField(to=ArtistsModel, blank=True)
-    music_id = models.ManyToManyField(to=MusicModel, blank=True)
+    music_id = models.ManyToManyField(to=MusicModel, blank=True, related_name='genere_id')
     
     album_id = models.ManyToManyField(to=AlbumModel, blank=True)
     generecover = models.FileField(upload_to=genere_file_cover)
