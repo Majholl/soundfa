@@ -54,7 +54,7 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['cover'] = instance.cover.url if instance.cover else "null"
+        req['cover'] = instance.cover.url if instance.cover else None
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
         req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
@@ -65,6 +65,90 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
 
         return req
     
+
+
+
+
+class AddMusicToPlaylist(serializers.ModelSerializer):
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = PlaylistModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+        existing_musics = [i['id'] for i in instance.music_id.values('id')]
+        
+        for i in validated_data['music_id']:
+            instance.music_id.add(i.pk)
+            
+        musics_pk = [i.pk for i in validated_data['music_id']]
+
+        ind = 0
+        for i in musics_pk:
+            if i not in existing_musics:
+                ind +=1 
+                
+        instance.count_totaltracks(instance.totaltracks + ind)
+
+        return instance
+
+    def to_representation(self, instance):
+        
+        user_id = self.context['request'].user
+        req = {}
+        req['id'] = instance.pk
+        req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
+        req['user'] = user_id.pk
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['totaltracks'] = instance.totaltracks
+        req['updated_at'] = instance.updated_at
+
+        return req
+    
+
+
+
+class RemoveMusicToPlaylist(serializers.ModelSerializer):
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = PlaylistModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+        existing_musics = [i['id'] for i in instance.music_id.values('id')]
+        
+        for i in validated_data['music_id']:
+            instance.music_id.remove(i.pk)
+            
+        musics_pk = [i.pk for i in validated_data['music_id']]
+
+        ind = 0
+        for i in musics_pk:
+            if i  in existing_musics:
+                ind +=1 
+                
+        instance.count_totaltracks(instance.totaltracks - ind)
+
+        return instance
+
+    def to_representation(self, instance):
+        
+        user_id = self.context['request'].user
+        req = {}
+        req['id'] = instance.pk
+        req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
+        req['user'] = user_id.pk
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['totaltracks'] = instance.totaltracks
+        req['updated_at'] = instance.updated_at
+
+        return req
 
 
 

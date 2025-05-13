@@ -11,7 +11,7 @@ import os
 
 
 
-from ..serializers.playlists_serializers import CreatePlayListSerializers, UpdatePlayListSerializers, GetAllListsSerializers, GetAllPublicListsSerializers
+from ..serializers.playlists_serializers import CreatePlayListSerializers, AddMusicToPlaylist, RemoveMusicToPlaylist,  UpdatePlayListSerializers, GetAllListsSerializers, GetAllPublicListsSerializers
 from ..models.albums import AlbumModel 
 from ..models.musics import MusicModel
 from ..models.playlists import PlaylistModel
@@ -146,13 +146,14 @@ def add_playlist(request:Response) -> Response:
         - Json schema :{title:'', cover:'', music_id:'', public_playlist:'', totaltracks:'', description:''}
         - Supported image : jpg, png, jpeg
         - Relational with musics models
-        * Only users can use this endpoint
+        * Only users who is owner of the playlist or admins and superadmins can call this endpoints
     """
     data = request.data
     
     try:
-        if len(data) == 0 or not len(data) > 1:
-            return Response({'msg':'Add this fields to update the album.', 'essential-field':'id', 'optional-fields':'title, cover, music_id, totaltracks,description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(data) == 0 or not len(data) > 0:
+            return Response({'msg':'Add this fields to add a album.', 'essential-field':'title', 'optional-fields':'cover, music_id, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if 'title' not in data or len(data['title']) ==0 or len(data.getlist('title')) < 1 :
                 return Response({'msg':'Title length is not enough.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
@@ -205,6 +206,12 @@ def add_playlist(request:Response) -> Response:
 
 
 
+
+
+
+
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_playlist(request:Request, id:int) -> Response:
@@ -238,6 +245,102 @@ def delete_playlist(request:Request, id:int) -> Response:
     
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def add_music_to_playlist(request:Request) -> Response: 
+    """
+        - Add music to the playlist
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with musics models
+        * Only users who is owner of the playlist or admins and superadmins can call this endpoints
+    """
+    data = request.data
+    
+    try:
+        if not 'id' in data:
+            return Response({'msg':'Add id of the playlist to add music.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the playlist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+        playlist = PlaylistModel.objects.get(id= int(data['id']))
+        serializer = AddMusicToPlaylist(playlist, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Music(s) added to playlists.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except PlaylistModel.DoesNotExist:
+        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+        
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def remove_music_to_playlist(request:Request) -> Response: 
+    """
+        - Remove music to the playlist
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with musics models
+        * Only users who is owner of the playlist or admins and superadmins can call this endpoints
+    """
+    data = request.data
+    
+    try:
+        if not 'id' in data:
+            return Response({'msg':'Add id of the playlist to add music.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the playlist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+        playlist = PlaylistModel.objects.get(id= int(data['id']))
+        serializer = RemoveMusicToPlaylist(playlist, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Music(s) added to playlists.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except PlaylistModel.DoesNotExist:
+        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
 
 
 
