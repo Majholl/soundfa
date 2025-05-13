@@ -55,11 +55,12 @@ genere_url = [
 
 playlist_url = [
     path('playlist/add/', view_playlists.add_playlist, name='Playlsit-add'),
+    path('playlist/delete/<int:id>', view_playlists.delete_playlist, name='Playlsit-delete'),
+
     path('playlist/update/', view_playlists.update_playlist, name='Playlist-update'),
     path('playlist/playlists/', view_playlists.get_all_playlist_user, name='All-playlists'),
     path('playlist/public/', view_playlists.get_all_public_playlist, name='All-public-playlists'),
     path('playlist/', view_playlists.get_playlist_user, name='get-playlists'),
-    path('playlist/delete/', view_playlists.delete_playlist, name='Playlsit-delete'),
 ]
 
 

@@ -16,12 +16,11 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
         - Add relation to the music
     """
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
-    totaltracks = serializers.IntegerField(required=False)
     description = serializers.CharField(required=False)
     
     class Meta:
         model = PlaylistModel
-        fields = ['id', 'title', 'cover', 'public_playlist', 'music_id', 'totaltracks', 'description']
+        fields = ['id', 'title', 'cover', 'public_playlist', 'music_id', 'description']
         read_only_fields =['id']
 
 
@@ -35,6 +34,7 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
             validated_data['public_playlist'] = 1
             
         playlist = PlaylistModel.objects.create(**validated_data)
+        playlist.count_totaltracks(len(music_id))
         
         if music_id:
             for i in [i.pk for i in music_id]:

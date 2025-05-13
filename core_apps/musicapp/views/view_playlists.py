@@ -125,33 +125,6 @@ def get_playlist_user(request:Request) -> Response:
     
      
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_playlist(request:Request) -> Response:
-    data = request.data
-    user = request.user
-    try:
-        
-        if not 'playlist_id' in data:
-            return Response({'msg':'Provide playlist id.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        playlist = PlaylistModel.objects.get(id=data['playlist_id'])
-        
-        if str(playlist.playlists_users.values('id')[0]['id']) != str(user.pk)  and user.usertype not in ['admin', 'superadmin']:
-            return Response({'msg':"You are not owner of this playlisy", 'status':403}, status=status.HTTP_403_FORBIDDEN)
-
-        playlist.music_id.clear()
-        user.playlists_users.remove(playlist)
-        playlist.delete()
-        return Response({'msg':'playlist Removed successfully.', 'status':201}, status=status.HTTP_201_CREATED)
-    
-    except PlaylistModel.DoesNotExist:
-        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-    
-    except Exception as err:
-        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
 
 
@@ -229,6 +202,42 @@ def add_playlist(request:Response) -> Response:
 
 
 
+
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_playlist(request:Request, id:int) -> Response:
+    """
+        - Delete playlist from database by id 
+        - METHOD : DELETE
+        - Relational with musics and users models
+        * Only users who is owner of the playlist or admins and superadmins can call this endpoints
+    """
+    user = request.user
+    try:
+        
+        if not id:
+            return Response({'msg':'Provide playlist id.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        playlist = PlaylistModel.objects.get(id= int(id))
+        
+        if str(playlist.playlists_users.values('id')[0]['id']) != str(user.pk)  and user.usertype not in ['admin', 'superadmin']:
+            return Response({'msg':"You are not owner of this playlist", 'status':403}, status=status.HTTP_403_FORBIDDEN)
+
+        playlist.music_id.clear()
+        user.playlists.remove(playlist)
+        
+        if playlist.cover.path:
+            os.remove(playlist.cover.path)
+        
+        playlist.delete()
+        return Response({'msg':'playlist Removed successfully.', 'status':201}, status=status.HTTP_201_CREATED)
+    
+    except PlaylistModel.DoesNotExist:
+        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+    
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

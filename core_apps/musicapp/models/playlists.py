@@ -50,6 +50,10 @@ class PlaylistModel(models.Model):
         ordering = ['-title']
     
     
+    def count_totaltracks(self, count):
+        self.totaltracks = count
+        self.save()
+    
     def make_playlist_public(self):
         if self.public_playlist == 0:
             self.public_playlist = 1 
