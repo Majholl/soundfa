@@ -206,12 +206,6 @@ def add_playlist(request:Response) -> Response:
 
 
 
-
-
-
-
-
-
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_playlist(request:Request, id:int) -> Response:
@@ -245,13 +239,6 @@ def delete_playlist(request:Request, id:int) -> Response:
     
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
 
 
 
@@ -355,26 +342,27 @@ def remove_music_to_playlist(request:Request) -> Response:
 def update_playlist(request:Response) -> Response:
     """
         - Update playlist into database by reqeust.data info
-        - METHOD : POST
+        - METHOD : PUT
         - Json schema :{title:'', cover:'', music_id:'', public_playlist:'', totaltracks:'', description:''}
         - Supported image : jpg, png, jpeg
         - Relational with musics models
         * Only users who has the  playlist and superadmins and admins can call this 
+        * Be carefull this clear all musics and add new musics if music_id is provided
     """
     data = request.data
     user = request.user
     try:
         
         if len(data) == 0 or not len(data) > 1:
-            return Response({'msg':'Add this fields to update the playlist.', 'essential-field':'id', 'optional-fields':'title, playlistcover, music_id, totaltracks,description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Add this fields to update the playlist.', 'essential-field':'id', 'optional-fields':'title, cover, music_id, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if 'id' not in data or len(data.getlist('id')) ==0  or len(data.getlist('id')) > 1:
-            return Response({'msg':'Provide playlist pk to update playlist info.', 'status':400,}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Provide playlist pk to update playlist data.', 'status':400,}, status=status.HTTP_400_BAD_REQUEST)
         
        
         if 'cover' in data:
-            if len(data['musiccover']) == 0 or len(data.getlist('musiccover')) >1 :
-                return Response({'msg':'Provide a cover for the playlsit.', 'status':400} , status=status.HTTP_400_BAD_REQUEST) 
+            if len(data['cover']) == 0 or len(data.getlist('cover')) >1 :
+                return Response({'msg':'Provide a cover for the playlist.', 'status':400} , status=status.HTTP_400_BAD_REQUEST) 
             
             if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.png', '.jpeg'] :
                 return Response({'msg':'Image type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
@@ -392,26 +380,23 @@ def update_playlist(request:Response) -> Response:
             if  not music.exists() or music.count() != len(music_ids):
                 return Response({'msg': 'Some music IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
              
-             
+            
         playlist = PlaylistModel.objects.get(pk=data['id'])
         
         if str(playlist.playlists_users.values('id')[0]['id']) != str(user.pk)  and user.usertype not in ['admin', 'superadmin']:
-            return Response({'msg':"You are not owner of this playlisy", 'status':403}, status=status.HTTP_403_FORBIDDEN)
-
-        serializer = UpdatePlayListSerializers(playlist, data=data, partial=True, context={'request':request})
+            return Response({'msg':"You are not owner of this playlist", 'status':403}, status=status.HTTP_403_FORBIDDEN)
         
+        serializer = UpdatePlayListSerializers(playlist, data=data, partial=True, context={'request':request})
+         
         if serializer.is_valid():
-            if 'playlistcover' in data:
-                image_path = path.join(settings.MEDIA_ROOT, playlist.playlistcover.path)
+            if 'cover' in data:
+                image_path = path.join(settings.MEDIA_ROOT, playlist.cover.path)
                 if os.path.exists(image_path):
                     os.remove(image_path)
             serializer.save()
             
-            if 'music_id' in data and music : 
-                for i in music:
-                    playlist.music_id.add(i)
-                
-            return Response({'msg':'Playlist info updated.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+  
+            return Response({'msg':'Playlist data updated successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
      
         return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
                 

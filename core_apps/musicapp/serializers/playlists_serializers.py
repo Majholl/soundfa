@@ -70,6 +70,12 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
 
 
 class AddMusicToPlaylist(serializers.ModelSerializer):
+    """
+        - Serializer for increase musics of playlists
+        - Based on : Playlist model
+        - METHOD : PATCH
+        - Relation to the music
+    """    
     music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
 
     class Meta:
@@ -112,6 +118,12 @@ class AddMusicToPlaylist(serializers.ModelSerializer):
 
 
 class RemoveMusicToPlaylist(serializers.ModelSerializer):
+    """
+        - Serializer for decrease musics of playlists
+        - Based on : Playlist model
+        - METHOD : PATCH
+        - Relation to the music
+    """    
     music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
 
     class Meta:
@@ -157,10 +169,16 @@ class RemoveMusicToPlaylist(serializers.ModelSerializer):
 
 
 class UpdatePlayListSerializers(serializers.ModelSerializer):
-
+    """
+        - Serializer for update data of the playlists
+        - Based on : Playlist model
+        - METHOD : UPDATE
+        - Relation to the music
+    """  
+    music_id = serializers.PrimaryKeyRelatedField(required = False, queryset = MusicModel.objects.all(), many=True)
     class Meta:
         model = PlaylistModel
-        fields = ['id', 'title', 'cover', 'public_playlist', 'music_id', 'totaltracks', 'description']
+        fields = ['id', 'title', 'cover', 'public_playlist', 'music_id', 'description']
         read_only_fields = ['id',]
         
     def update(self, instance, validated_data):
@@ -168,10 +186,15 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
           
             music_id = validated_data.pop('music_id', [])
             for attr , value in validated_data.items():
-                setattr(instance, attr, value)
-            
+                setattr(instance, attr, value)   
             instance.save()
             
+            instance.music_id.clear()
+
+            if music_id: 
+                instance.music_id.set(music_id)
+            instance.count_totaltracks(len(music_id))
+                    
             return instance
         
         except Exception as err:

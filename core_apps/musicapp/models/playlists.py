@@ -54,6 +54,7 @@ class PlaylistModel(models.Model):
         self.totaltracks = count
         self.save()
     
+    
     def make_playlist_public(self):
         if self.public_playlist == 0:
             self.public_playlist = 1 
