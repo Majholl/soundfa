@@ -235,9 +235,15 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
 
 
 class GetAllListsSerializers(serializers.ModelSerializer):
+    """
+        - Serializer for get data of the playlists of the user
+        - Based on : Playlist model
+        - METHOD : GET
+        - Relation to the music
+    """  
     class Meta:
         model = PlaylistModel
-        fields = ['id', 'title', 'music_id', 'cover', 'public_playlist',  'totaltracks', 'description']
+        fields = ['id', 'title', 'music_id', 'cover', 'public_playlist', 'description']
         read_only_fields =['id']
         
     def to_representation(self, instance):
@@ -260,10 +266,19 @@ class GetAllListsSerializers(serializers.ModelSerializer):
     
     
     
+    
+    
+    
 class GetAllPublicListsSerializers(serializers.ModelSerializer):
+    """
+        - Serializer for get data of the public playlists 
+        - Based on : Playlist model
+        - METHOD : GET
+        - Relation to the music
+    """  
     class Meta:
         model = PlaylistModel
-        fields = ['id', 'title', 'music_id', 'cover',  'totaltracks', 'description']
+        fields = ['id', 'title', 'music_id', 'cover', 'public_playlist', 'description']
         read_only_fields =['id']
         
     def to_representation(self, instance):
