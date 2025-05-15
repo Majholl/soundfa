@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
                 ('lyrics', models.TextField(null=True)),
                 ('musiccover', models.ImageField(upload_to=core_apps.musicapp.models.musics.music_file_cover)),
                 ('musicfile', models.FileField(upload_to=core_apps.musicapp.models.musics.music_file_cover)),
-                ('created_at', models.BigIntegerField(default=core_apps.musicapp.models.musics.nowTimeStamp)),
-                ('updated_at', models.BigIntegerField(default=core_apps.musicapp.models.musics.nowTimeStamp)),
+                ('created_at', models.BigIntegerField(default=1)),
+                ('updated_at', models.BigIntegerField(default=1)),
                 ('artist_id', models.ManyToManyField(to='musicapp.ArtistsModel')),
             ],
             options={
