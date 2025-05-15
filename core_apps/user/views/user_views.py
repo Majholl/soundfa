@@ -250,6 +250,7 @@ def update_user(request):
     data = request.data
     user = request.user
     try:
+        
         if len(data) < 1 :
             return Response({'msg':'To update user data provide a value.', 'optional-fields':'first_name, last_name, profile', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -259,11 +260,11 @@ def update_user(request):
             
             if path.splitext(data['profile'].name)[-1] not in ['.jpg', '.png', '.jpeg']:
                 return Response({'msg':'This file type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
+    
+
         serializer = UpdateUserSerializer(instance=user, data=data, partial=True)
         if serializer.is_valid():
-            if 'profile' in data:
+            if 'profile' in data and user.profile:
                 image_path = path.join(settings.MEDIA_ROOT, user.profile.path)
                 if os.path.exists(image_path):
                     os.remove(image_path)

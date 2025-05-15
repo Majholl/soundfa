@@ -57,7 +57,7 @@ class Users(AbstractUser):
     email = models.EmailField('Email address', db_index=True, unique=True)
     playlists = models.ManyToManyField(verbose_name='Playlists', to=PlaylistModel, blank=True, related_name='playlists_users')
     
-    profile = models.ImageField('User profile', upload_to=profile_file_cover, blank=True)
+    profile = models.ImageField('User profile', upload_to=profile_file_cover, null=True)
     usertype = models.CharField('User type', max_length=10, choices=UserType.choices, default=UserType.USER)
     
     account_status = models.CharField('Account status', max_length=8, choices=AccountStatus.choices, default=AccountStatus.DEACTIVE)

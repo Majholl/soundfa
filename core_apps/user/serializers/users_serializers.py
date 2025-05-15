@@ -62,7 +62,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'profile']
+        fields = ['first_name', 'last_name', 'profile']
  
     def update(self, instance, validated_data):
         try:
@@ -79,6 +79,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         req =super().to_representation(instance)  
+        req['profile'] = instance.profile.url
         req['username'] = instance.username
         req['email'] = instance.email 
         req['created_at'] = instance.created_at
