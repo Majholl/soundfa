@@ -18,7 +18,7 @@ from .musics import MusicModel
 
 
 
-def playlist_file_cover(instance ,filename):
+def playlist_file_cover(instance, filename):
     try:
         
         splitedName = path.splitext(filename)

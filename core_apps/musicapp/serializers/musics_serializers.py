@@ -16,11 +16,11 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         - Add relation to the artist
     """
     artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
-    musiccover = serializers.ImageField(required=False)
+    cover = serializers.ImageField(required=False)
     
     class Meta:
         model = MusicModel
-        fields = ['id', 'title' , 'musicfile', 'musiccover', 'duration', 'lyrics', 'artist_id']
+        fields = ['id', 'title' , 'file', 'cover', 'duration', 'lyrics', 'artist_id']
     
     def create(self, validated_data):
         try:
@@ -37,10 +37,10 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['title'] = instance.title
         req['artists'] = instance.artist_id.values('id', 'name')
-        req['musicfile'] = instance.musicfile.url 
+        req['file'] = instance.file.url 
+        req['cover'] = instance.cover.url if instance.cover else None
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
-        req['cover'] = instance.musiccover.url 
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -67,7 +67,7 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = MusicModel
-        fields = ['id', 'duration', 'lyrics', 'musiccover']
+        fields = ['id', 'duration', 'lyrics', 'cover']
     
     
     def update(self, instance, validated_data):
@@ -75,7 +75,6 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
             for atrr , value in validated_data.items():
                 setattr(instance, atrr, value)
                 
-            instance.updated_at = int(time())     
             instance.save()  
             return instance
         
@@ -87,8 +86,8 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['musicfile'] = instance.musicfile.url 
-        req['cover'] = instance.musiccover.url 
+        req['file'] = instance.file.url 
+        req['cover'] = instance.cover.url if instance.cover else None
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
         req['artists'] = instance.artist_id.values('id', 'name')
