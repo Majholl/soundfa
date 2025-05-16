@@ -1,6 +1,8 @@
 import os
 from rest_framework import serializers
 from time import time
+from django.urls import reverse
+
 
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
@@ -46,14 +48,6 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         
         return req
     
-
-
-
-
-
-
-
-
 
 
 
@@ -111,29 +105,28 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
     download_url = serializers.SerializerMethodField()
     class Meta:
         model = MusicModel
-        fields = ['id', 'title', 'musicfile', 'download_url', 'musiccover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'file', 'download_url', 'cover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
     
     
     def get_download_url(self, obj):
         request = self.context.get('request')
-        filename = os.path.basename(obj.musicfile.name)
-        return request.build_absolute_uri(f'download/music/{filename}')
+        filename = os.path.basename(obj.file.name)
+        return request.build_absolute_uri(reverse('download-music', args=[filename]))
+        
+        
         
         
     def to_representation(self, instance):
         req = {}
-        pk = instance.pk
-
-        req['id'] = pk     
+        req['id'] = instance.pk
         req['title'] = instance.title
-        req['musicfile']  = instance.musicfile.url
-        req['cover']  = instance.musiccover.url
-        req['duration']  = instance.duration
-        req['genere'] = instance.genere_id.values('name',)
-        req['lyrics']  = instance.lyrics    
-        req['artists']  = instance.artist_id.values('id', 'name') 
-        req['musicfile-downloadable'] = self.get_download_url(instance)
-        req['created_at']  = instance.created_at   
-        req['updated_at']  = instance.updated_at   
+        req['file'] = instance.file.url 
+        req['file-downloadable'] = self.get_download_url(instance)
+        req['cover'] = instance.cover.url if instance.cover else None
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
         
         return req

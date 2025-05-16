@@ -1,13 +1,16 @@
-from urllib.request import Request
-from django.http import FileResponse, Http404
-from rest_framework.response import Response 
 from rest_framework.decorators import api_view, permission_classes
+from urllib.request import Request
+from rest_framework.response import Response 
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+from django.http import FileResponse, Http404
+from django.conf import settings
+from django.db.models import Q
 from loguru import logger
+from typing import Optional
 from os import path
 import os
-from typing import Optional
-from django.conf import settings
+
 
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
@@ -18,45 +21,87 @@ from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_supera
 
 
 
+
 @api_view(['GET'])
-def get_music_by_musicname(request:Request, name:Optional[str]=None) -> Response:
+def search_in_musics_artists(request:Request) -> Response:
     """
-        - Get music data from db 
+        - Get music & artist data from db 
         - METHOD : Get
         - Json schema : -
     """
-    data = request.data
-    
+    param = request.query_params.get('search')
     try:
-
-        info_dict = {}
+        paginator = PageNumberPagination()
+        if not param:
+            return Response({'msg':'Data found.', 'stats':200, 'data':''}, status=status.HTTP_200_OK)
+         
+        pages  = {}
         
-        if name is not None:
-            info_dict['title'] = name
-        else:
-            title_error =  Response({'msg':'Need music title to search for.', 'stats':400}, status=status.HTTP_400_BAD_REQUEST)
-            if not 'title' in data:
-                return title_error
-            
-            if 'title' in data and len(data['title']) <1:
-                return title_error
-                
-            info_dict['title'] = data['title']
+        music = MusicModel.objects.filter(Q(title__icontains = param) | Q(artist_id__name__icontains = param)).distinct()
+        page = paginator.paginate_queryset(music, request)    
+          
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
         
-        music = MusicModel.objects.filter(**info_dict)
-        
-        if music.count() == 0 :
-            return Response({'msg':'No musci  found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = GetMusicByNameSerializer(instance=music , many=True, context={'request':request})
-        return Response({'msg':'Music data found successfully.', 'status':200, 'data':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+             
+        serializer = GetMusicByNameSerializer(instance=page , many=True, context={'request':request})
+        return Response({'msg':'Music data found successfully.', **pages,  'status':200, 'data':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
     
     except ArtistsModel.DoesNotExist :
-        return Response({'msg':'artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg':'Artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except MusicModel.DoesNotExist :
-        return Response({'msg':'music not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg':'Music not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+         
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+@api_view(['GET'])
+def get_music_by_musicname(request:Request, qset:Optional[str]=None) -> Response:
+    """
+        - Get music data by it's name from db 
+        - METHOD : Get
+        - Json schema : -
+    """
+    try:
+        paginator = PageNumberPagination()
+        pages  = {}
+        if qset is None:
+            return Response({'msg':'Need music title to search for.', 'stats':400}, status=status.HTTP_400_BAD_REQUEST)
+                 
+        music = MusicModel.objects.filter(Q(title__icontains = qset)).distinct()
+        
+        if music.count() == 0 :
+            return Response({'msg':'Data found.', 'stats':200, 'data':''}, status=status.HTTP_200_OK)
+        
+        page = paginator.paginate_queryset(music, request)    
+          
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
+        
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+        
+        serializer = GetMusicByNameSerializer(instance=page , many=True, context={'request':request})
+        return Response({'msg':'Music data found successfully.', 'status':200, 'data':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
+    
+    except ArtistsModel.DoesNotExist :
+        return Response({'msg':'Artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+    
+    except MusicModel.DoesNotExist :
+        return Response({'msg':'Music not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
          
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -69,43 +114,41 @@ def get_music_by_musicname(request:Request, name:Optional[str]=None) -> Response
 
 
 @api_view(['GET'])
-def get_music_by_artistname(request:Request, name:Optional[str]=None) -> Response:
+def get_music_by_artistname(request:Request, qset:Optional[str]=None) -> Response:
     """
-        - Get music data from db 
+        - Get music data by it's artist from db 
         - METHOD : Get
         - Json schema : -
     """
-    data = request.data
-    
     try:
-
-        info_dict = {}
-        
-        if name is not None:
-            info_dict['name'] = name
-        else:
-            name_error =  Response({'msg':'Need artist name to search for it\'s musics.', 'stats':400}, status=status.HTTP_400_BAD_REQUEST)
-            if not 'name' in data:
-                return name_error
-            
-            if 'name' in data and len(data['name']) <1:
-                return name_error
-                
-            info_dict['name'] = data['name']
-            
-        artist = ArtistsModel.objects.get(**info_dict)
-        music = MusicModel.objects.filter(artist_id = artist.pk)
+        paginator = PageNumberPagination()
+        pages  = {}
+        if qset is None:
+            return Response({'msg':'Need music title to search for.', 'stats':400}, status=status.HTTP_400_BAD_REQUEST)
+                 
+              
+        music = MusicModel.objects.filter(Q(artist_id__name__icontains= qset)).distinct()
         if music.count() == 0 :
-            return Response({'msg':'Musci not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'msg':'Data found.', 'stats':200, 'data':''}, status=status.HTTP_200_OK)
         
-        serializer = GetMusicByNameSerializer(instance=music , many=True, context={'request':request})
-        return Response({'msg':'Music data found successfully.', 'status':200, 'data':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
+        page = paginator.paginate_queryset(music, request)    
+          
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
+        
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+        
+        serializer = GetMusicByNameSerializer(instance=page , many=True, context={'request':request})
+        return Response({'msg':'Music data found successfully.', **pages,  'status':200, 'data':serializer.data, 'total':music.count()}, status=status.HTTP_200_OK)
     
     except ArtistsModel.DoesNotExist :
-        return Response({'msg':'artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg':'Artist not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
     except MusicModel.DoesNotExist :
-        return Response({'msg':'music not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'msg':'Music not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
      
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
