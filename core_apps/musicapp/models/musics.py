@@ -35,13 +35,12 @@ class MusicModel(models.Model):
     
     title = models.CharField('Music title', max_length=32)
     duration = models.CharField('Music duration', max_length=32, null=True)
-    
     lyrics = models.TextField('Music lyrics', null=True)
+    
     artist_id = models.ManyToManyField(verbose_name='Artists', to=ArtistsModel, related_name='artist_id')
     
     cover = models.ImageField('Music cover', upload_to=music_file_cover)
     file = models.FileField('Music file', upload_to=music_file_cover)
-    
     created_at = models.DateTimeField('Creatation datetime', auto_now_add=True)
     updated_at = models.DateTimeField('Last modification', auto_now=True)
     

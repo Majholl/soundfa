@@ -20,6 +20,7 @@ music_url = [
     path('music/add/', view_musics.add_music, name='Music-add'),
     path('music/delete/<int:id>', view_musics.delete_music, name='Music-delete'), 
     path('music/update/', view_musics.update_music, name='Music-update'),
+    path('music/musics', view_musics.get_all_musics, name='Music-all-musics'),
     path('music/music-artist-search/', view_musics.search_in_musics_artists, name='Music-artist-searching'),
     path('music/musics/<str:qset>/', view_musics.get_music_by_musicname, name='Music-music-name'),
     path('music/artist/<str:qset>/', view_musics.get_music_by_artistname, name='Music-artist-name'),

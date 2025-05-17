@@ -158,6 +158,40 @@ def get_music_by_artistname(request:Request, qset:Optional[str]=None) -> Respons
 
 
 
+@api_view(['GET'])
+def get_all_musics(request:Request) -> Response:
+    """
+        - Get all musics from db
+        - METHOD : Get
+        - Json schema : -
+    """
+    try:
+        paginator = PageNumberPagination()
+        paginator.page_size = 10
+        pages = {}
+        musics = MusicModel.objects.all()
+        page = paginator.paginate_queryset(musics, request)
+        serializer = GetMusicByNameSerializer(instance=page, many=True, context={'request':request})
+        
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
+        
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+            
+        return Response({'msg':'Music data found successfully.', **pages,  'status':200, 'data':serializer.data, 'total':musics.count()}, status=status.HTTP_200_OK)
+    
+    
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
 
 
 
