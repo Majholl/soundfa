@@ -151,7 +151,7 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name', 'image')
-        req['musics'] = [ {'id': music.id, 'title': music.title, 'musicfile': music.musicfile.url, 'cover':music.musiccover.url, 'duration': music.duration,  'artist' : [{'id': artist.id , 'name': artist.name, 'image': artist.image.url, 'bio': artist.bio} for artist in music.artist_id.all()]} for music in instance.music_id.all()]
+        req['musics'] = [ {'id': music.id, 'title': music.title, 'file': music.file.url, 'cover':music.cover.url, 'duration': music.duration,  'artist' : [{'id': artist.id , 'name': artist.name, 'image': artist.image.url, 'bio': artist.bio} for artist in music.artist_id.all()]} for music in instance.music_id.all()]
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
