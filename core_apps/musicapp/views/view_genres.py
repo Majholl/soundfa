@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import status
 from os import path
 import os
@@ -91,32 +92,53 @@ def get_genere(request) -> Response:
 
 @api_view(['POST'])      
 @permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
-def add_genere(request)  -> Response:
+def add_genere(request: Request) -> Response:
     """
         - Add genere into database by reqeust.data info
         - METHOD : POST
-        - Json schema :{'title':genere-name, 'generecover':genere-cover, 'music_id':Music_id, 'aritst-id':Artist-id, 'description':genere-description}
+        - Json schema :{'title':, 'cover':, 'music_id':, 'aritst-id':, 'album_id':,  'description':}
         - Supported image : jpg, png, jpeg
-        - Relational with artist models and musics
+        - Relational with artist, musics and albums models
         * Only admin's and super-admin's call this endpoint
     """
     data = request.data
     try:
         
         if len(data) < 1 :
-            return Response({'msg':'Add values to fields of genere.', 'essential-field':'name, generecover', 'optional-fields':'artist_id, music_idو album_id, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Add values to fields of genere.', 'essential-field':'name, cover', 'optional-fields':'artist_id, music_idو album_id, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
         
         if 'name' not in data or len(data['name']) ==0 or len(data.getlist('name')) == 0 :
             return Response({'msg':'Provide a name for the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        if 'generecover' in data:
-            if len(data['generecover']) == 0 or len(data.getlist('generecover')) > 1 :
+        
+        if 'cover' in data:
+            if len(data['cover']) == 0 or len(data.getlist('cover')) > 1 :
                 return Response({'msg':'One album cover must be provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
-            if path.splitext(data['generecover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
-                 return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-
-
+            if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
+                 return Response({'msg':'This file type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if 'artist_id' in data :
+            artists_id = data.getlist('artist_id')
+            artists = ArtistsModel.objects.filter(pk__in=artists_id)
+            if artists.count() != len(artists_id):
+                return Response({'msg': 'Some artist ID(s) are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if 'music_id' in data:     
+            musics_id = data.getlist('music_id')
+            musics = MusicModel.objects.filter(pk__in=musics_id)
+            if musics.count() != len(musics_id):
+                return Response({'msg': 'Some music ID(s) are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
+             
+             
+        if 'album_id' in data:     
+            albums_id = data.getlist('album_id')
+            albums = AlbumModel.objects.filter(pk__in=albums_id)
+            if albums.count() != len(albums_id):
+                return Response({'msg': 'Some album ID(s) are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
         serializer = CreateGenreSerializers(data=data)        
         if serializer.is_valid():
             serializer.save()

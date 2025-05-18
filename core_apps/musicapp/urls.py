@@ -33,11 +33,14 @@ music_url = [
 
 album_url = [
     path('album/add/', view_albums.add_album, name='Album-add'),
+    
+    path('album/delete', view_albums.delete_album, name='Album-delete'), 
+    
     path('album/update/', view_albums.update_album, name='Album-update'),
     path('album/albums/', view_albums.get_all_albums, name='Albums-list'),
     path('album/', view_albums.get_album_by_album_name, name='Album-by-Album-name'),
     path('album/<str:title>/', view_albums.get_album_by_album_name, name='Album-by-Album-name'),
-    path('album/delete', view_albums.delete_album, name='Album-delete'), 
+    
 ]
 
 

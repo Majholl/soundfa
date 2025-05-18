@@ -12,7 +12,7 @@ from ..models.musics import MusicModel
 class CreateGenreSerializers(serializers.ModelSerializer):
     """
         - Serializer for validting genere data to add in database
-        - Based on : genere model
+        - Based on : Genere model
         - METHOD : POST
         - Create genere object in MYSQL db
         - Add relation to the artist , music , album
@@ -22,17 +22,19 @@ class CreateGenreSerializers(serializers.ModelSerializer):
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
     album_id = serializers.PrimaryKeyRelatedField(required=False, queryset=AlbumModel.objects.all(), many=True)
     description = serializers.CharField(required=False)
-    generecover = serializers.FileField(required=False)
+    cover = serializers.FileField(required=False)
     class Meta:
         model = GenereModel
-        fields = ['name', 'description', 'artist_id', 'music_id', 'album_id', 'generecover']
+        fields = ['name', 'description', 'artist_id', 'music_id', 'album_id', 'cover']
         
         
     def create(self, validated_data):
         try:
+            
             artist_id = validated_data.pop('artist_id', [])
             music_id = validated_data.pop('music_id', [])
             album_id = validated_data.pop('album_id', [])
+            
             genere = GenereModel.objects.create(**validated_data)
             
             if artist_id:
@@ -53,7 +55,7 @@ class CreateGenreSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['name'] = instance.name
-        req['cover'] = instance.generecover.url
+        req['cover'] = instance.cover.url if instance.cover else None
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
@@ -64,6 +66,13 @@ class CreateGenreSerializers(serializers.ModelSerializer):
         
         return req
     
+
+
+
+
+
+
+
 
 
 
