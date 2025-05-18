@@ -337,25 +337,17 @@ class UpdateGenereSerializers(serializers.ModelSerializer):
         - Update genere object in MYSQL db
         - Update relation to the artist and musics and album
     """
+    
     class Meta:
         model = GenereModel
-        fields = ['id', 'name', 'generecover', 'artist_id', 'music_id','album_id', 'description']
+        fields = ['id', 'name', 'cover', 'description']
         read_only_fields = ['id',]
         
     def update(self, instance, validated_data):
         try:
-            if 'artist_id' in validated_data:
-                validated_data.pop('artist_id')
-                
-            if 'music_id' in validated_data:
-                validated_data.pop('music_id')
-            
-            if 'album_id' in validated_data:
-                validated_data.pop('album_id')
-            
+           
             for attr , value in validated_data.items():
                 setattr(instance, attr, value)
-            instance.updated_at = int(time())
             instance.save()
             
             return instance
@@ -368,17 +360,21 @@ class UpdateGenereSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['name'] = instance.name
-        req['cover'] = instance.generecover.url
+        req['cover'] = instance.cover.url if instance.cover else None
         req['description'] = instance.description
-        req['artists'] = instance.artist_id.values('id', 'name')
-        req['musics'] = instance.music_id.values('id', 'title')
-        req['albums'] = instance.album_id.values('id', 'title')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
         
         return req
     
+
+
+
+
+
+
+
 
 
 

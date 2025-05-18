@@ -96,7 +96,7 @@ def add_genere(request: Request) -> Response:
     """
         - Add genere into database by reqeust.data info
         - METHOD : POST
-        - Json schema :{'title':, 'cover':, 'music_id':, 'aritst-id':, 'album_id':,  'description':}
+        - Json schema :{'name':, 'cover':, 'music_id':, 'aritst-id':, 'album_id':,  'description':}
         - Supported image : jpg, png, jpeg
         - Relational with artist, musics and albums models
         * Only admin's and super-admin's call this endpoint
@@ -534,86 +534,41 @@ def update_genere(request:Response) -> Response:
     """
         - Add genere into database by reqeust.data info
         - METHOD : PUT
-        - Json schema :{'title':genere-name, 'generecover':genere-cover, 'music_id':Music_id, 'aritst-id':Artist-id, 'description':genere-description}
+        - Json schema :{'name':, 'cover':,  'description':}
         - Supported image : jpg, png, jpeg
-        - Relational with artist models and musics
+        - Relational with artist, musics and albums models
         * Only admin's and super-admin's call this endpoint
-    
     """
     data = request.data
     try:
         
         if len(data) == 0 or not len(data) > 1:
-            return Response({'msg':'Add values with fields to update the genere data.', 'essential-field':'id', 'optional-fields':'title, generecover, artist_id, music_id, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Add values with fields to update the genere data.', 'essential-field':'id', 'optional-fields':'title, cover, description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if 'id' not in data:
             return Response({'msg':'Provide genere id to update genere data.', 'status':400,}, status=status.HTTP_400_BAD_REQUEST)
         
        
-        if 'generecover' in data:
-            if len(data['generecover']) == 0 or len(data.getlist('generecover')) > 1:
+        if 'cover' in data:
+            if len(data['cover']) == 0 or len(data.getlist('cover')) > 1:
                 return Response({'msg':'Provide image for the albom cover.', 'status':400} , status=status.HTTP_400_BAD_REQUEST) 
             
-            if path.splitext(data['generecover'].name)[-1] not in ['.jpg', '.png', '.jpeg'] :
+            if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.png', '.jpeg'] :
                 return Response({'msg':'Image type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        
-        
-        if 'artist_id' in data:
-            artist_ids = list(data.getlist('artist_id'))
-            if  len(artist_ids) == 0 or len(data['artist_id']) == 0:
-                return Response({'msg': 'Provide at least one valid artist ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-
-            artist = ArtistsModel.objects.filter(pk__in = artist_ids)
-      
-            if  not artist.exists() or artist.count() != len(artist_ids):
-                return Response({'msg': 'Some artist IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-        
-
-        if 'music_id' in data:
-            music_ids = list(data.getlist('music_id'))
-            if len(music_ids) == 0 or len(data['music_id']) == 0 :
-                return Response({'msg': 'Provide at least one valid music ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-            
-            music = MusicModel.objects.filter(pk__in = music_ids)
-            
-            if  not music.exists() or music.count() != len(music_ids):
-                return Response({'msg': 'Some music IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-        if 'album_id' in data:
-            album_ids = list(data.getlist('album_id'))
-            if len(album_ids) == 0 or len(data['album_id']) == 0 :
-                return Response({'msg': 'Provide at least one valid album ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-            
-            album = AlbumModel.objects.filter(pk__in = album_ids)
-            
-            if  not album.exists() or album.count() != len(album_ids):
-                return Response({'msg': 'Some album IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-   
         
    
         genere = GenereModel.objects.get(pk=data['id'])
         serializer = UpdateGenereSerializers(genere, data=data, partial=True)
         
         if serializer.is_valid():
-            if 'generecover' in data:
-                image_path = path.join(settings.MEDIA_ROOT, genere.generecover.path)
-                if os.path.exists(image_path):
-                    os.remove(image_path)
+            if 'cover' in data:
+                if genere.cover : 
+                    image_path = path.join(settings.MEDIA_ROOT, genere.cover.path)
+                    if os.path.exists(image_path):
+                        os.remove(image_path)
             serializer.save()
             
-            if 'artist_id' in data and artist :
-                genere.artist_id.set(artist)
-                
-            if 'music_id' in data and music : 
-                genere.music_id.set(music)
-                
-            if 'album_id' in data and album:
-                print(album)
-                genere.album_id.set(album)
-                
             return Response({'msg':'Genere info updated.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
      
         
