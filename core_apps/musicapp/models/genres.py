@@ -8,6 +8,8 @@ from .artists import ArtistsModel
 from .albums import AlbumModel
 from .musics import MusicModel
 
+
+
 # -------------------------------------------------------------------
     ### Genere Model ###
 

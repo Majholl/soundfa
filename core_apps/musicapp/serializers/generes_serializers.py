@@ -71,6 +71,117 @@ class CreateGenreSerializers(serializers.ModelSerializer):
 
 
 
+class AddArtistToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase artists of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'artist_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['artist_id']:
+            instance.artist_id.add(i.pk)
+       
+
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+
+
+
+class RemoveArtistToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for decrease artists of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'artist_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['artist_id']:
+            instance.artist_id.remove(i.pk)
+       
+
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
