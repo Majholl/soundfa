@@ -156,12 +156,154 @@ class RemoveArtistToGenere(serializers.ModelSerializer):
 
 
 
+class AddMusicToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase music of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['music_id']:
+            instance.music_id.add(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+class RemoveMusicToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase music of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['music_id']:
+            instance.music_id.remove(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
 
 
 
 
 
 
+
+
+class AddAlbumToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase album of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    album_id = serializers.PrimaryKeyRelatedField(queryset=AlbumModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'album_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['album_id']:
+            instance.album_id.add(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['albums'] = instance.album_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+class RemoveAlbumToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase music of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    album_id = serializers.PrimaryKeyRelatedField(queryset=AlbumModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'album_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['album_id']:
+            instance.album_id.remove(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['albums'] = instance.album_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
 
 
 

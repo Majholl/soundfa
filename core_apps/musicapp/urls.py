@@ -35,11 +35,16 @@ playlist_url = [
 genere_url = [
     path('genere/add/', view_genres.add_genere, name='Genere-add'),
     path('genere/delete/<int:id>', view_genres.delete_genere, name='Genere-delete'),
-    
     path('genere/addartist/', view_genres.add_artist_to_genere, name='Add-artist-to-genere'),
+    
     path('genere/removeartist/', view_genres.remove_artist_from_genere, name='Remove-artist-to-genere'),
     
+    path('genere/addmusic/', view_genres.add_music_to_genere, name='Add-music-to-genere'),
+    path('genere/removemusic/', view_genres.remove_music_from_genere, name='Remove-music-to-genere'),
     
+    path('genere/addalbum/', view_genres.add_album_to_genere, name='Add-album-to-genere'),
+    path('genere/removealbum/', view_genres.remove_album_from_genere, name='Remove-album-to-genere'),
+                
     path('genere/update/', view_genres.update_genere, name='Genere-update'),
     path('genere/', view_genres.get_all_genere, name='All-generes'),
     path('genere/generes/', view_genres.get_genere, name='Get-generes'),

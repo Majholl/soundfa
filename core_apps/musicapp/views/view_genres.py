@@ -12,7 +12,7 @@ from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
 from ..models.albums import AlbumModel
 from ..models.genres import GenereModel
-from ..serializers.generes_serializers import CreateGenreSerializers, AddArtistToGenere, RemoveArtistToGenere,  UpdateGenereSerializers,  GetAllGenereSerializers
+from ..serializers.generes_serializers import CreateGenreSerializers, AddArtistToGenere, RemoveArtistToGenere, AddMusicToGenere, RemoveMusicToGenere, AddAlbumToGenere, RemoveAlbumToGenere,  UpdateGenereSerializers,  GetAllGenereSerializers
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin, Is_superadmin 
 
 
@@ -175,10 +175,13 @@ def delete_genere(request:Request, id:int) -> Response:
             return Response({'msg':'Provide genere id.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         genere = GenereModel.objects.get(id=int(id))
+
         if genere.cover:
-            genere = genere.cover.path
-            os.remove(genere)
+            genere_path = genere.cover.path
+            if path.exists(genere_path):
+                os.remove(genere_path)
             
+        
         genere.artist_id.clear()
         genere.music_id.clear()
         genere.album_id.clear()
@@ -192,19 +195,6 @@ def delete_genere(request:Request, id:int) -> Response:
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -236,7 +226,7 @@ def add_artist_to_genere(request:Request) -> Response:
             return Response({'msg':'Add id of the genere to add artist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if not 'artist_id' in data or 'artist_id' in data and len(data['artist_id']) == 0 :
-            return Response({'msg':'Provide artist id(s) to add to the playlist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Provide artist id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
        
        
         genere = GenereModel.objects.get(id= int(data['id']))
@@ -252,7 +242,7 @@ def add_artist_to_genere(request:Request) -> Response:
         
         
     except GenereModel.DoesNotExist:
-        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -285,7 +275,7 @@ def remove_artist_from_genere(request:Request) -> Response:
             return Response({'msg':'Add id of the genere to add artist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         if not 'artist_id' in data or 'artist_id' in data and len(data['artist_id']) == 0 :
-            return Response({'msg':'Provide artist id(s) to add to the playlist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg':'Provide artist id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
        
        
         genere = GenereModel.objects.get(id= int(data['id']))
@@ -295,13 +285,13 @@ def remove_artist_from_genere(request:Request) -> Response:
         if serializer.is_valid():
             serializer.save()
             
-            return Response({'msg': 'Artist(s) added to genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'msg': 'Artist(s) removed from genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
         
         return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
         
     except GenereModel.DoesNotExist:
-        return Response({'msg':'Playlist does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -313,6 +303,202 @@ def remove_artist_from_genere(request:Request) -> Response:
   
   
   
+  
+  
+  
+  
+  
+    
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def add_music_to_genere(request:Request) -> Response: 
+    """
+        - Add music to the genere
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with artist, musics and albums models
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data:
+            return Response({'msg':'Add id of the genere to add artist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        genere = GenereModel.objects.get(id= int(data['id']))
+        
+        serializer = AddMusicToGenere(genere, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Music(s) added to genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except GenereModel.DoesNotExist:
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+        
+
+
+
+
+
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def remove_music_from_genere(request:Request) -> Response: 
+    """
+        - Remove music from the genere
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with artist, musics and albums models
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data:
+            return Response({'msg':'Add id of the genere to add music.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        genere = GenereModel.objects.get(id= int(data['id']))
+        
+        serializer = RemoveMusicToGenere(genere, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Music(s) removed from genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except GenereModel.DoesNotExist:
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def add_album_to_genere(request:Request) -> Response: 
+    """
+        - Add album to the genere
+        - METHOD : PATCH
+        - Json schema :{id:'', album_id:''}
+        - Relational with artist, musics and albums models
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data:
+            return Response({'msg':'Add id of the genere to add album.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'album_id' in data or 'album_id' in data and len(data['album_id']) == 0 :
+            return Response({'msg':'Provide album id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        genere = GenereModel.objects.get(id= int(data['id']))
+        
+        serializer = AddAlbumToGenere(genere, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Album(s) added to genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except GenereModel.DoesNotExist:
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+        
+
+
+
+
+
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def remove_album_from_genere(request:Request) -> Response: 
+    """
+        - Remove album from the genere
+        - METHOD : PATCH
+        - Json schema :{id:'', album_id:''}
+        - Relational with artist, musics and albums models
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data:
+            return Response({'msg':'Add id of the genere to add album.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'album_id' in data or 'album_id' in data and len(data['album_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the genere.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        genere = GenereModel.objects.get(id= int(data['id']))
+        
+        serializer = RemoveAlbumToGenere(genere, data=data, partial=True, context={'request':request})
+        
+        if serializer.is_valid():
+            serializer.save()
+            
+            return Response({'msg': 'Album(s) removed from genere successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except GenereModel.DoesNotExist:
+        return Response({'msg':'Genere does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
   
   
   
