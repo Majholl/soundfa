@@ -224,7 +224,7 @@ def add_music(request:Request) -> Response:
                 return Response({'msg':'Only one music is allowed.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
             if path.splitext(data['file'].name)[-1] not in ['.mp3'] :
-                return Response({'msg':'This music type is not supported.', 'supported-musicfile':'mp3', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'msg':'This file type is not supported.', 'supported-musicfile':'mp3', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
     
     
         if 'cover' in data: 
@@ -232,7 +232,7 @@ def add_music(request:Request) -> Response:
                 return Response({'msg':'only one music cover is allowed.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
             if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.png', '.jpeg']:
-                return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'msg':'This file type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         
         if len(data['artist_id']) == 0 or len(data.getlist('artist_id')) < 1 :

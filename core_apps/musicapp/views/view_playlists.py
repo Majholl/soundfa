@@ -179,7 +179,7 @@ def add_playlist(request:Response) -> Response:
                 return Response({'msg':'One cover for playlist must be provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
             if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
-                 return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+                 return Response({'msg':'This file type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
        
         
         serializer = CreatePlayListSerializers(data=data, context={'request':request})
