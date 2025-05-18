@@ -7,6 +7,8 @@ from os import path
 import os
 from rest_framework.pagination import PageNumberPagination
 from django.conf import settings
+from django.db.models import Q
+
 
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
@@ -21,13 +23,12 @@ from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin, Is_superad
 
   
 @api_view(['GET'])
-def get_all_genere(request) -> Response:
+def get_all_genere(request:Request) -> Response:
     """
         - Get genere data from db 
         - METHOD : Get
         - Json schema : -
     """
-    data = request.data
     try:    
         paginator = PageNumberPagination()
         pages = {}
@@ -59,20 +60,21 @@ def get_all_genere(request) -> Response:
     
     
 @api_view(['GET'])
-def get_genere(request) -> Response:
+def get_genere(request:Request, qset:int) -> Response:
     """
         - Get genere data from db 
         - METHOD : Get
         - Json schema : -
     """
-    data = request.data
     try:    
-        if not 'genere_id' in data:
+
+        if not qset:
             return Response({'msg':'Provide genere id.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        playlists = GenereModel.objects.get(pk=data['genere_id'])
+        generes = GenereModel.objects.get(pk = qset)
+        serializers = GetAllGenereSerializers(instance=generes)
+
         
-        serializers = GetAllGenereSerializers(instance=playlists)
         return Response({'msg':'All the genere.', 'status':200, 'data':serializers.data}, status=status.HTTP_200_OK)
     
     except GenereModel.DoesNotExist:
@@ -81,9 +83,27 @@ def get_genere(request) -> Response:
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
            
+    
       
       
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -156,9 +176,6 @@ def add_genere(request: Request) -> Response:
   
   
   
-  
-  
-  
 
 
 @api_view(['DELETE'])
@@ -202,8 +219,7 @@ def delete_genere(request:Request, id:int) -> Response:
   
   
   
-  
-  
+
   
   
   
@@ -255,8 +271,6 @@ def add_artist_to_genere(request:Request) -> Response:
 
 
 
-
-
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def remove_artist_from_genere(request:Request) -> Response: 
@@ -300,9 +314,7 @@ def remove_artist_from_genere(request:Request) -> Response:
     
         
 
-  
-  
-  
+
   
   
   
@@ -354,10 +366,6 @@ def add_music_to_genere(request:Request) -> Response:
 
 
 
-
-
-
-
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def remove_music_from_genere(request:Request) -> Response: 
@@ -401,15 +409,10 @@ def remove_music_from_genere(request:Request) -> Response:
   
   
   
+
   
   
-  
-  
-  
-  
-  
-  
-    
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def add_album_to_genere(request:Request) -> Response: 
@@ -452,10 +455,6 @@ def add_album_to_genere(request:Request) -> Response:
 
     
         
-
-
-
-
 
 
 
@@ -505,28 +504,6 @@ def remove_album_from_genere(request:Request) -> Response:
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
 
 @api_view(['PUT'])
 @permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])

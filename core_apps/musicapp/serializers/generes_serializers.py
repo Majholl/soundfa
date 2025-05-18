@@ -312,23 +312,6 @@ class RemoveAlbumToGenere(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class UpdateGenereSerializers(serializers.ModelSerializer):
     """
         - Serializer for validting genere data to add in database
@@ -386,14 +369,14 @@ class GetAllGenereSerializers(serializers.ModelSerializer):
     """
     class Meta:
         model = GenereModel
-        fields = ['id', 'name', 'description', 'artist_id', 'music_id', 'album_id', 'generecover']
+        fields = ['id', 'name', 'description', 'artist_id', 'music_id', 'album_id', 'cover']
     
     def to_representation(self, instance):
         req = {}
         
         req['id'] = instance.pk
         req['name'] = instance.name
-        req['cover'] = instance.generecover.url
+        req['cover'] = instance.cover.url if instance.cover else None
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
