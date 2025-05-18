@@ -45,7 +45,7 @@ class MusicModel(models.Model):
     updated_at = models.DateTimeField('Last modification', auto_now=True)
     
     class Meta:
-        verbose_name = 'music'
+        verbose_name = 'Music'
         db_table = 'musics'
         ordering = ['-title']
         
