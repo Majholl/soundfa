@@ -66,9 +66,7 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
             for attr , value in validated_data.items():
                 setattr(instance , attr, value)
                 
-            instance.updated_at = int(time())    
             instance.save()
-            logger.info(f'Artist data updateed, {str(validated_data)}')
             return instance      
         
         except Exception as err:
@@ -91,15 +89,6 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
         
         
         
-        
-     
-     
-        
-             
-             
-             
-             
-             
              
 class GetArtitstsSerialiazer(serializers.ModelSerializer):
     """
@@ -114,7 +103,7 @@ class GetArtitstsSerialiazer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         req = {} 
-        req['id'] = instance.pk
+        req['id'] = instance.id
         req['name'] = instance.name
         req['image'] = instance.image.url
         req['bio'] = instance.bio

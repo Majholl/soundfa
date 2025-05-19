@@ -62,39 +62,24 @@ def get_all_artists(request:Request) -> Response:
 
 
 @api_view(['GET'])
-def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
+def get_one_artist(request:Request, qset:Optional[str]=None) -> Response:
     """
         - Get artist data from db 
-        - if the path contains artist name after the URL://v1/api/artist/aritst-name  it returns the artist info
-        - else you can send these info's from the body in request.body
-        
         -METHOD : GET
         -Returns list of the artist with fields id, name, image, realname, bio
         -supports params for better searching 
     """
     try :
-        data = request.data 
-        info_dict = {}
-        if not name: 
-            artist_name = data.get('name' , None)
-            aritst_id = data.get('id' , None)
-            
-            if artist_name and not aritst_id :
-                info_dict['name'] = artist_name
-            elif aritst_id and not artist_name:
-                info_dict['pk'] = aritst_id
-                
-            elif artist_name and aritst_id :
-                return Response({'msg':'Only provide name or id not both.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'msg':'Provide artist info name or pk.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)    
-        else:  
-            info_dict['name'] = name
-
-        artist = ArtistsModel.objects.get(Q(**info_dict))
-        serializers = GetArtitstsSerialiazer(artist)
-        return Response({'msg':'Artist info found successfully.', 'status':200, 'data':serializers.data} , status=status.HTTP_200_OK)
+        
+        
+        if not qset : 
+            return Response({'msg':'Artist found successfully.', 'status':200, 'data':""} , status=status.HTTP_200_OK)
+       
+        artist = ArtistsModel.objects.filter(Q(name__icontains = qset) | Q(id__icontains = qset))
+        serializers = GetArtitstsSerialiazer(artist, many=True)
     
+        return Response({'msg':'Artist found successfully.', 'status':200, 'data':serializers.data} , status=status.HTTP_200_OK)
+        
     except ArtistsModel.DoesNotExist:
         return Response({'msg':'The artist not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
@@ -199,7 +184,6 @@ def update_artist(request:Request) -> Response:
     data = request.data
     try:
        
-
         if len(data) == 0  or not len(data) > 1 :
             return Response({'msg':'Add values to fields of artist to update them.', 'essential-field':'id', 'optional-fields':'name, image, realname, bio', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -228,7 +212,6 @@ def update_artist(request:Request) -> Response:
                 os.remove(image_path)
             serializers.save()
             
-            logger.info(f'Artist info update, {str(serializers.data)} ')
             return Response({'msg':'Artist data updated.' , 'status':200, 'data':serializers.data}, status=status.HTTP_200_OK)
        
     except ArtistsModel.DoesNotExist:

@@ -44,8 +44,8 @@ genere_url = [
     path('genere/addplaylist/', view_genres.add_playlist_to_genere, name='Add-playlist-to-genere'),
     path('genere/removeplaylist/', view_genres.remove_playlist_from_genere, name='Remove-playlist-to-genere'),            
     path('genere/update/', view_genres.update_genere, name='Genere-update'),
-    path('genere/', view_genres.get_all_genere, name='All-generes'),
-    path('genere/generes/<int:qset>', view_genres.get_genere, name='Get-generes'),
+    path('genere/generes', view_genres.get_all_genere, name='All-generes'),
+    path('genere/<int:qset>', view_genres.get_genere, name='Get-generes'),
 ]
 
 
@@ -56,12 +56,9 @@ genere_url = [
 artist_url = [
     path('artist/add/' , view_artists.add_artist, name='Artist-add'),
     path('artist/delete/<int:id>' , view_artists.delete_artist , name='Artist-deletion'),
-     
     path('artist/update/', view_artists.update_artist , name='Artist-update'),
     path('artist/artists/', view_artists.get_all_artists , name='Artists-list'),
-    path('artist/', view_artists.get_one_artist, name='Aritst-one'),
-    path('artist/<str:name>', view_artists.get_one_artist, name='Aritst-one'),
-   
+    path('artist/<str:qset>/', view_artists.get_one_artist, name='Aritst-one'),   
 ]
 
 
