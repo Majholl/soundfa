@@ -24,10 +24,9 @@ class CreateArtistsSerialiazer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             aritsts = ArtistsModel.objects.create(**validated_data)
-            if aritsts :
-                logger.info(f'New Artist added, {str(validated_data)}')
+            if aritsts : 
                 return aritsts
-        
+    
         except Exception as err:
             pass
             
@@ -37,13 +36,8 @@ class CreateArtistsSerialiazer(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['name'] = instance.name
         req['image'] = instance.image.url
-        
-        if instance.bio :
-            req['bio'] = instance.bio
-            
-        if instance.realname :
-            req['realname'] = instance.realname
-        
+        req['bio'] = instance.bio
+        req['realname'] = instance.realname
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -72,9 +66,7 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
             for attr , value in validated_data.items():
                 setattr(instance , attr, value)
                 
-            instance.updated_at = int(time())    
             instance.save()
-            logger.info(f'Artist data updateed, {str(validated_data)}')
             return instance      
         
         except Exception as err:
@@ -97,15 +89,6 @@ class UpdateDataArtistSerializer(serializers.ModelSerializer):
         
         
         
-        
-     
-     
-        
-             
-             
-             
-             
-             
              
 class GetArtitstsSerialiazer(serializers.ModelSerializer):
     """
@@ -120,7 +103,7 @@ class GetArtitstsSerialiazer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         req = {} 
-        req['id'] = instance.pk
+        req['id'] = instance.id
         req['name'] = instance.name
         req['image'] = instance.image.url
         req['bio'] = instance.bio

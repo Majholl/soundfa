@@ -13,6 +13,7 @@ from ..musicapp.models.playlists import PlaylistModel
 
 # -------------------------------------------------------------------
 # Users Model
+
 # This model extends Django's AbstractUser to add custom fields and logic:
 # - User types: normal user, admin, superadmin (via choices)
 # - Account status: active, deactive, locked (via choices)
@@ -20,6 +21,7 @@ from ..musicapp.models.playlists import PlaylistModel
 # - Many-to-many relationship with playlists
 # - Password reset system with code, expiration time, and attempt counter
 # - Timestamp fields for account creation and last update
+
 # -------------------------------------------------------------------
 
 
@@ -53,9 +55,9 @@ class Users(AbstractUser):
   
         
     email = models.EmailField('Email address', db_index=True, unique=True)
-    playlists = models.ManyToManyField(verbose_name='Playlist', to=PlaylistModel, blank=True, related_name='playlists_users')
+    playlists = models.ManyToManyField(verbose_name='Playlists', to=PlaylistModel, blank=True, related_name='playlists_users')
     
-    profile = models.ImageField('User profile', upload_to=profile_file_cover, blank=True)
+    profile = models.ImageField('User profile', upload_to=profile_file_cover, null=True)
     usertype = models.CharField('User type', max_length=10, choices=UserType.choices, default=UserType.USER)
     
     account_status = models.CharField('Account status', max_length=8, choices=AccountStatus.choices, default=AccountStatus.DEACTIVE)
@@ -69,8 +71,8 @@ class Users(AbstractUser):
     reset_password_expire_time = models.DateTimeField('Reset password expiration time', null=True, blank=True)
     reset_password_attempt = models.IntegerField('Reset password attempt', default=0)
     
-    created_at = models.DateTimeField('User creatation datetime', auto_now_add=True)
-    updated_at = models.DateTimeField('Last modification of user', auto_now=True)
+    created_at = models.DateTimeField('Creatation datetime', auto_now_add=True)
+    updated_at = models.DateTimeField('Last modification', auto_now=True)
     
     
     date_joined = None

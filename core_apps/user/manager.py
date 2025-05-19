@@ -40,6 +40,8 @@ class customUserManager(UserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('usertype' , 'superadmin')
+        extra_fields.setdefault('is_active', 1)
+        extra_fields.setdefault('account_status', 'active')
         return self._create_user(email, password, **extra_fields)
     
     
@@ -47,6 +49,8 @@ class customUserManager(UserManager):
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('usertype' , 'admin')
+        extra_fields.setdefault('is_active', 1)
+        extra_fields.setdefault('account_status', 'active')
         return self._create_user(email, password, **extra_fields)
     
     

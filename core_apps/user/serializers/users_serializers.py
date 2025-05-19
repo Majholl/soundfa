@@ -39,6 +39,12 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         req = super().to_representation(instance)
+        
+        if settings.OTP_REQUIRED == "False":
+            token = RefreshToken().for_user(instance)
+            req['access'] = str(token.access_token)
+            req['refresh'] = str(token)
+            
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         return req
@@ -56,7 +62,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'profile']
+        fields = ['first_name', 'last_name', 'profile']
  
     def update(self, instance, validated_data):
         try:
@@ -73,6 +79,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         req =super().to_representation(instance)  
+        req['profile'] = instance.profile.url
         req['username'] = instance.username
         req['email'] = instance.email 
         req['created_at'] = instance.created_at

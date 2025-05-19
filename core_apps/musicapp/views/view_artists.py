@@ -62,39 +62,24 @@ def get_all_artists(request:Request) -> Response:
 
 
 @api_view(['GET'])
-def get_one_artist(request:Request, name:Optional[str]=None) -> Response:
+def get_one_artist(request:Request, qset:Optional[str]=None) -> Response:
     """
         - Get artist data from db 
-        - if the path contains artist name after the URL://v1/api/artist/aritst-name  it returns the artist info
-        - else you can send these info's from the body in request.body
-        
         -METHOD : GET
         -Returns list of the artist with fields id, name, image, realname, bio
         -supports params for better searching 
     """
     try :
-        data = request.data 
-        info_dict = {}
-        if not name: 
-            artist_name = data.get('name' , None)
-            aritst_id = data.get('id' , None)
-            
-            if artist_name and not aritst_id :
-                info_dict['name'] = artist_name
-            elif aritst_id and not artist_name:
-                info_dict['pk'] = aritst_id
-                
-            elif artist_name and aritst_id :
-                return Response({'msg':'Only provide name or id not both.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'msg':'Provide artist info name or pk.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)    
-        else:  
-            info_dict['name'] = name
-
-        artist = ArtistsModel.objects.get(Q(**info_dict))
-        serializers = GetArtitstsSerialiazer(artist)
-        return Response({'msg':'Artist info found successfully.', 'status':200, 'data':serializers.data} , status=status.HTTP_200_OK)
+        
+        
+        if not qset : 
+            return Response({'msg':'Artist found successfully.', 'status':200, 'data':""} , status=status.HTTP_200_OK)
+       
+        artist = ArtistsModel.objects.filter(Q(name__icontains = qset) | Q(id__icontains = qset))
+        serializers = GetArtitstsSerialiazer(artist, many=True)
     
+        return Response({'msg':'Artist found successfully.', 'status':200, 'data':serializers.data} , status=status.HTTP_200_OK)
+        
     except ArtistsModel.DoesNotExist:
         return Response({'msg':'The artist not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
     
@@ -113,7 +98,7 @@ def add_artist(request:Request) -> Response:
     """
         - Add artist into database by reqeust.data info
         - METHOD : POST
-        - Json schema : {'name':Artist-name, 'image':Artist-image, 'realname':Artist-realname, 'bio':Artist-bio}
+        - Json schema : {'name':, 'image':, 'realname':, 'bio':}
         - Supported image : jpg, png, jpeg
         * Only admin's and super-admin's call this endpoint
     """
@@ -140,11 +125,45 @@ def add_artist(request:Request) -> Response:
         serializers = CreateArtistsSerialiazer(data=data)
         if serializers.is_valid():
             serializers.save()
-            logger.info(f'New artist added, Artitst-data:{str(serializers.data)}')
             return Response({'msg':'Artist added successfully.' , 'status':201, 'data':serializers.data} , status=status.HTTP_201_CREATED)
     
     except Exception as err:    
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['DELETE'])
+@permission_classes([Is_superadmin])
+def delete_artist(request:Request, id:int) -> Response:
+    """
+        - Delete artist from database by reqeust.data info
+        - METHOD : PUT
+        - Json schema : {'id':'id'}
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    try:
+        
+        if not id:
+            return Response({'msg':'Artist id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        artist = ArtistsModel.objects.get(pk = id)
+
+        if artist.image.path:
+            artistimage = artist.image.path
+            os.remove(artistimage)
+            
+        artist.delete()
+    
+        return Response({'msg':'Artists deleted successfully.', 'status':200,}, status=status.HTTP_200_OK)
+    
+    except ArtistsModel.DoesNotExist:
+        return Response({'msg':'Artist not found exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
@@ -165,7 +184,6 @@ def update_artist(request:Request) -> Response:
     data = request.data
     try:
        
-
         if len(data) == 0  or not len(data) > 1 :
             return Response({'msg':'Add values to fields of artist to update them.', 'essential-field':'id', 'optional-fields':'name, image, realname, bio', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -194,7 +212,6 @@ def update_artist(request:Request) -> Response:
                 os.remove(image_path)
             serializers.save()
             
-            logger.info(f'Artist info update, {str(serializers.data)} ')
             return Response({'msg':'Artist data updated.' , 'status':200, 'data':serializers.data}, status=status.HTTP_200_OK)
        
     except ArtistsModel.DoesNotExist:
@@ -205,48 +222,6 @@ def update_artist(request:Request) -> Response:
 
 
 
-
-
-
-@api_view(['DELETE'])
-@permission_classes([Is_superadmin])
-def delete_artist(request:Request) -> Response:
-    """
-        - Delete artist from database by reqeust.data info
-        - METHOD : PUT
-        - Json schema : {'id':'id'}
-        * Only admin's and super-admin's call this endpoint
-    """
-    data = request.data
-    try:
-        
-        if 'id' not in data:
-            return Response({'msg':'Artist id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if 'id' in data and  len(data['id']) == 0  or len(data.getlist('id')) > 1:
-            return Response({'msg':'Id field is empty.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        artist = ArtistsModel.objects.get(pk = data['id'])
-        aritst_info  = {}
-        aritst_info['id'] = artist.pk
-        aritst_info['name'] = artist.name
-        aritst_info['image'] = artist.image.url
-        aritst_info['realname'] = artist.realname
-        aritst_info['bio'] = artist.bio
-        
-        if artist.image.path:
-            artistimage = artist.image.path
-            os.remove(artistimage)
-            
-        artist.delete()
-        logger.info(f'Artist requested  deleted, {artist.pk} - {artist.name}')
-        return Response({'msg':'Artists deleted successfully.', 'status':200, 'artist-deleted':aritst_info }, status=status.HTTP_200_OK)
-    
-    except ArtistsModel.DoesNotExist:
-        return Response({'msg':'Artist not found exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
-        
-    except Exception as err:
-        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

@@ -143,24 +143,7 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         req = {}
         
-        music_artist_info = {}
-        
-        music_info = instance.music_id.values('id', 'title', 'duration', 'musiccover', 'musicfile')
-       
-        for i in instance.music_id.values_list('id', flat=True):
-            music = MusicModel.objects.get(id = i)
-            artist_data = music.artist_id.values('id', 'name', 'realname', 'bio' ,'image')
-       
-        for i in music_info :
-            i['music_id'] = i['id']
-            i.pop('id')
-            music_artist_info.update(i)
-        
-        for j in artist_data:
-            j['artist_id'] = j['id']
-            j.pop('id')
-            music_artist_info.update(j)
-                  
+  
             
         req['id'] = instance.pk
         req['title'] = instance.title
@@ -168,7 +151,7 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name', 'image')
-        req['musics'] = music_artist_info
+        req['musics'] = [ {'id': music.id, 'title': music.title, 'file': music.file.url, 'cover':music.cover.url, 'duration': music.duration,  'artist' : [{'id': artist.id , 'name': artist.name, 'image': artist.image.url, 'bio': artist.bio} for artist in music.artist_id.all()]} for music in instance.music_id.all()]
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
