@@ -57,7 +57,7 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url if instance.cover else None
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
@@ -108,7 +108,7 @@ class AddMusicToPlaylist(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['updated_at'] = instance.updated_at
 
@@ -156,7 +156,7 @@ class RemoveMusicToPlaylist(serializers.ModelSerializer):
         req['id'] = instance.pk
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['updated_at'] = instance.updated_at
 
@@ -210,7 +210,7 @@ class UpdatePlayListSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url if instance.cover else "null" 
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
@@ -255,7 +255,7 @@ class GetAllListsSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url if instance.cover else "null"
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
@@ -290,7 +290,7 @@ class GetAllPublicListsSerializers(serializers.ModelSerializer):
         req['cover'] = instance.cover.url if instance.cover else "null"
         req['playlist_public'] = 'public' if instance.public_playlist == 1  else 'private'
         req['user'] = user_id.pk
-        req['musics'] = [{'id' : i.id, 'title':i.title, 'musicfile':i.musicfile.url, 'cover': i.musiccover.url} for i in instance.music_id.all()]
+        req['musics'] = [{'id' : i.id, 'title':i.title, 'file':i.file.url, 'cover': i.cover.url} for i in instance.music_id.all()]
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['created_at'] = instance.created_at
