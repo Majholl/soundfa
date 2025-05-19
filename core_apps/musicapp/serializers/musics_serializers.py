@@ -41,6 +41,7 @@ class CreateMusicSerializer(serializers.ModelSerializer):
         req['artists'] = instance.artist_id.values('id', 'name')
         req['file'] = instance.file.url 
         req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
         req['created_at'] = instance.created_at
@@ -82,6 +83,7 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
         req['title'] = instance.title
         req['file'] = instance.file.url 
         req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
         req['artists'] = instance.artist_id.values('id', 'name')
@@ -123,6 +125,7 @@ class GetMusicByNameSerializer(serializers.ModelSerializer):
         req['file'] = instance.file.url 
         req['file-downloadable'] = self.get_download_url(instance)
         req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
         req['duration'] = instance.duration
         req['lyrics'] = instance.lyrics  
         req['artists'] = instance.artist_id.values('id', 'name')

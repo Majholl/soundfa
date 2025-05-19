@@ -51,6 +51,7 @@ class CreatePlayListSerializers(serializers.ModelSerializer):
     def to_representation(self, instance):
         
         user_id = self.context['request'].user
+        
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title

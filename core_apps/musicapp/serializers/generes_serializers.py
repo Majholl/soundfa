@@ -6,7 +6,7 @@ from ..models.genres import GenereModel
 from ..models.albums import AlbumModel
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
-
+from ..models.playlists import PlaylistModel
 
 
 class CreateGenreSerializers(serializers.ModelSerializer):
@@ -21,11 +21,13 @@ class CreateGenreSerializers(serializers.ModelSerializer):
     artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModel.objects.all(), many=True)
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
     album_id = serializers.PrimaryKeyRelatedField(required=False, queryset=AlbumModel.objects.all(), many=True)
+    playlist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=PlaylistModel.objects.all(), many=True)
+
     description = serializers.CharField(required=False)
     cover = serializers.FileField(required=False)
     class Meta:
         model = GenereModel
-        fields = ['name', 'description', 'artist_id', 'music_id', 'album_id', 'cover']
+        fields = ['name', 'description', 'artist_id', 'music_id', 'album_id', 'playlist_id', 'cover']
         
         
     def create(self, validated_data):
@@ -34,6 +36,7 @@ class CreateGenreSerializers(serializers.ModelSerializer):
             artist_id = validated_data.pop('artist_id', [])
             music_id = validated_data.pop('music_id', [])
             album_id = validated_data.pop('album_id', [])
+            playlist_id = validated_data.pop('playlist_id', [])
             
             genere = GenereModel.objects.create(**validated_data)
             
@@ -45,7 +48,10 @@ class CreateGenreSerializers(serializers.ModelSerializer):
                 
             if album_id:
                 genere.album_id.set(album_id)
-                            
+                
+            if playlist_id:
+                genere.playlist_id.set(playlist_id)
+                                          
             return genere
             
         except Exception as err:
@@ -60,6 +66,7 @@ class CreateGenreSerializers(serializers.ModelSerializer):
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
         req['albums'] = instance.album_id.values('id', 'title')
+        req['playlists'] = instance.playlist_id.values('id', 'title')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -312,6 +319,91 @@ class RemoveAlbumToGenere(serializers.ModelSerializer):
 
 
 
+
+
+
+
+class AddPlaylistsToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase album of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    playlist_id = serializers.PrimaryKeyRelatedField(queryset=PlaylistModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'playlists_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['playlists_id']:
+            instance.playlist_id.add(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['playlist'] = instance.playlist_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+class RemovePlaylistToGenere(serializers.ModelSerializer):
+    """
+        - Serializer for increase music of generes
+        - Based on : Genere model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    playlist_id = serializers.PrimaryKeyRelatedField(queryset=PlaylistModel.objects.all(), many=True)
+
+    class Meta:
+        model = GenereModel
+        fields = ['id', 'playlist_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['playlist_id']:
+            instance.playlist_id.remove(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['name'] = instance.name
+        req['description'] = instance.description
+        req['playlist'] = instance.playlist_id.values('id', 'title')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+    
+
+
+
+
+
+
+
+
+
+
+
 class UpdateGenereSerializers(serializers.ModelSerializer):
     """
         - Serializer for validting genere data to add in database
@@ -381,6 +473,7 @@ class GetAllGenereSerializers(serializers.ModelSerializer):
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
         req['albums'] = instance.album_id.values('id', 'title')
+        req['playlists'] = instance.playlist_id.values('id', 'title')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         

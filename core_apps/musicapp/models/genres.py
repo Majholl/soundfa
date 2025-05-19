@@ -7,7 +7,7 @@ from loguru import logger
 from .artists import ArtistsModel
 from .albums import AlbumModel
 from .musics import MusicModel
-
+from .playlists import PlaylistModel
 
 
 # -------------------------------------------------------------------
@@ -45,6 +45,7 @@ class GenereModel(models.Model):
     artist_id = models.ManyToManyField(verbose_name='Artists', to=ArtistsModel, related_name='gerene_artists', blank=True)
     music_id = models.ManyToManyField(verbose_name='Musics', to=MusicModel, related_name='genere_musics', blank=True )
     album_id = models.ManyToManyField(verbose_name='Albums', to=AlbumModel, related_name='genere_albums', blank=True)
+    playlist_id = models.ManyToManyField(verbose_name='Playlists', to=PlaylistModel, related_name='genere_playlists', blank=True)
     
     cover = models.FileField(verbose_name='Genere cover', upload_to=genere_file_cover)
     created_at = models.DateTimeField('Creatation datetime', auto_now_add=True)
