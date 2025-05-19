@@ -53,6 +53,16 @@ genere_url = [
 
 
 
+artist_url = [
+    path('artist/add/' , view_artists.add_artist, name='Artist-add'),
+    path('artist/delete/<int:id>' , view_artists.delete_artist , name='Artist-deletion'),
+     
+    path('artist/update/', view_artists.update_artist , name='Artist-update'),
+    path('artist/artists/', view_artists.get_all_artists , name='Artists-list'),
+    path('artist/', view_artists.get_one_artist, name='Aritst-one'),
+    path('artist/<str:name>', view_artists.get_one_artist, name='Aritst-one'),
+   
+]
 
 
 
@@ -70,14 +80,6 @@ album_url = [
 ]
 
 
-artist_url = [
-    path('artist/add/' , view_artists.add_artist, name='Artist-add'),
-    path('artist/update/', view_artists.update_artist , name='Artist-update'),
-    path('artist/artists/', view_artists.get_all_artists , name='Artists-list'),
-    path('artist/', view_artists.get_one_artist, name='Aritst-one'),
-    path('artist/<str:name>', view_artists.get_one_artist, name='Aritst-one'),
-    path('artist/delete/' , view_artists.delete_artist , name='Artist-deletion'),
-]
 
 
 urlpatterns = artist_url + music_url + album_url + genere_url + playlist_url

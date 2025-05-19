@@ -113,7 +113,7 @@ def add_artist(request:Request) -> Response:
     """
         - Add artist into database by reqeust.data info
         - METHOD : POST
-        - Json schema : {'name':Artist-name, 'image':Artist-image, 'realname':Artist-realname, 'bio':Artist-bio}
+        - Json schema : {'name':, 'image':, 'realname':, 'bio':}
         - Supported image : jpg, png, jpeg
         * Only admin's and super-admin's call this endpoint
     """
@@ -140,11 +140,45 @@ def add_artist(request:Request) -> Response:
         serializers = CreateArtistsSerialiazer(data=data)
         if serializers.is_valid():
             serializers.save()
-            logger.info(f'New artist added, Artitst-data:{str(serializers.data)}')
             return Response({'msg':'Artist added successfully.' , 'status':201, 'data':serializers.data} , status=status.HTTP_201_CREATED)
     
     except Exception as err:    
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['DELETE'])
+@permission_classes([Is_superadmin])
+def delete_artist(request:Request, id:int) -> Response:
+    """
+        - Delete artist from database by reqeust.data info
+        - METHOD : PUT
+        - Json schema : {'id':'id'}
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    try:
+        
+        if not id:
+            return Response({'msg':'Artist id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        artist = ArtistsModel.objects.get(pk = id)
+
+        if artist.image.path:
+            artistimage = artist.image.path
+            os.remove(artistimage)
+            
+        artist.delete()
+    
+        return Response({'msg':'Artists deleted successfully.', 'status':200,}, status=status.HTTP_200_OK)
+    
+    except ArtistsModel.DoesNotExist:
+        return Response({'msg':'Artist not found exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
@@ -205,48 +239,6 @@ def update_artist(request:Request) -> Response:
 
 
 
-
-
-
-@api_view(['DELETE'])
-@permission_classes([Is_superadmin])
-def delete_artist(request:Request) -> Response:
-    """
-        - Delete artist from database by reqeust.data info
-        - METHOD : PUT
-        - Json schema : {'id':'id'}
-        * Only admin's and super-admin's call this endpoint
-    """
-    data = request.data
-    try:
-        
-        if 'id' not in data:
-            return Response({'msg':'Artist id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if 'id' in data and  len(data['id']) == 0  or len(data.getlist('id')) > 1:
-            return Response({'msg':'Id field is empty.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        artist = ArtistsModel.objects.get(pk = data['id'])
-        aritst_info  = {}
-        aritst_info['id'] = artist.pk
-        aritst_info['name'] = artist.name
-        aritst_info['image'] = artist.image.url
-        aritst_info['realname'] = artist.realname
-        aritst_info['bio'] = artist.bio
-        
-        if artist.image.path:
-            artistimage = artist.image.path
-            os.remove(artistimage)
-            
-        artist.delete()
-        logger.info(f'Artist requested  deleted, {artist.pk} - {artist.name}')
-        return Response({'msg':'Artists deleted successfully.', 'status':200, 'artist-deleted':aritst_info }, status=status.HTTP_200_OK)
-    
-    except ArtistsModel.DoesNotExist:
-        return Response({'msg':'Artist not found exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
-        
-    except Exception as err:
-        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

@@ -13,8 +13,8 @@ from .playlists import PlaylistModel
 # -------------------------------------------------------------------
     ### Genere Model ###
 
-# This model adds genere for artists, musics and albums:
-# - Many-to-many relationship with artist, musics, albums
+# This model adds genere for artists, musics and albums and playlist:
+# - Many-to-many relationship with artist, musics, albums, playlist
 # - Timestamp fields for creation and last update
 
 # -------------------------------------------------------------------
