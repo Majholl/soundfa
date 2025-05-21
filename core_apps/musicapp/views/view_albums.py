@@ -106,7 +106,7 @@ def add_album(request:Request) -> Response :
     """
         - Add album into database by reqeust.data info
         - METHOD : POST
-        - Json schema :{'title':Album-name, 'albumcover':Album-cover, 'music_id':Music_id, 'aritst-id':Artist-id, 'totaltracks':Album-totaltracks, 'description':Album-description}
+        - Json schema :{'title':, 'albumcover':, 'music_id':, 'aritst-id':, 'totaltracks':, 'description':}
         - Supported image : jpg, png, jpeg
         - Relational with artist models and musics
         * Only admin's and super-admin's call this endpoint
@@ -121,12 +121,12 @@ def add_album(request:Request) -> Response :
                 return Response({'msg':'Title length is not enough.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
             
-        if 'albumcover' in data:
-            if len(data['albumcover']) == 0 or len(data.getlist('albumcover')) > 1 :
+        if 'cover' in data:
+            if len(data['cover']) == 0 or len(data.getlist('cover')) > 1 :
                 return Response({'msg':'album cover must be provided.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
             
-            if path.splitext(data['albumcover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
-                 return Response({'msg':'This music type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.jpeg', '.png']:
+                 return Response({'msg':'This file type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
        
         
         if 'artist_id' in data:
@@ -170,6 +170,8 @@ def add_album(request:Request) -> Response :
             serializer.save()
             return Response({'msg':'Album added successfully.', 'status':201, 'data':serializer.data}, status=status.HTTP_201_CREATED)
         
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
         
     except ArtistsModel.DoesNotExist:    
         return Response({'msg':'Artist does not exits.', 'status':404}, status=status.HTTP_404_NOT_FOUND)  
@@ -179,6 +181,52 @@ def add_album(request:Request) -> Response :
     
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+   
+   
+    
+@api_view(['DELETE'])
+@permission_classes([Is_superadmin])
+def delete_album(request:Request, id:int):
+    """
+        - Delete album from database by reqeust.data info
+        - METHOD : Delete
+        - Json schema : {'id':'id'}
+        * Only admin's and super-admin's call this endpoint
+    """
+   
+    try:
+        if not id :
+            return Response({'msg':'Album id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        album = AlbumModel.objects.get(id = id)
+        album.artist_id.clear()
+        album.music_id.clear()
+        
+        if album.cover:
+            album_coer = album.cover.path
+            if path.exists(album_coer):
+                os.remove(album_coer)
+                
+        album.delete()
+        
+        return Response({'msg':'Album deleted successfully.', 'status':200}, status=status.HTTP_200_OK)
+    
+    except AlbumModel.DoesNotExist :    
+        return Response({'msg':'album not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
 
 
 
@@ -280,42 +328,3 @@ def update_album(request:Response) -> Response:
    
    
    
-   
-   
-    
-@api_view(['DELETE'])
-@permission_classes([Is_superadmin])
-def delete_album(request:Request):
-    """
-        - Delete album from database by reqeust.data info
-        - METHOD : Delete
-        - Json schema : {'id':'id'}
-        * Only admin's and super-admin's call this endpoint
-    """
-    data = request.data
-    try:
-        if 'id' not in data:
-            return Response({'msg':'Album id is required.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if 'id' in data and len(data.getlist('id')) <1:
-            return Response({'msg':'id field is empty.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        album_pk = data['id']
-        album = AlbumModel.objects.get(id = album_pk)
-        album.artist_id.clear()
-        album.music_id.clear()
-        
-        if album.albumcover.path:
-            musicfile = album.albumcover.path
-            os.remove(musicfile)
-        album.delete()
-        
-        logger.info(f'A album removed / {data["id"]}')
-        return Response({'msg':'Album deleted successfully.', 'status':200}, status=status.HTTP_200_OK)
-    
-    except AlbumModel.DoesNotExist :    
-        return Response({'msg':'album not found.', 'status':404}, status=status.HTTP_404_NOT_FOUND)
-    
-    except Exception as err:
-        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    

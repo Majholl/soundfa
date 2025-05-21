@@ -23,12 +23,11 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
     
     artist_id = serializers.PrimaryKeyRelatedField(required=False, queryset=ArtistsModel.objects.all(), many=True)
     music_id = serializers.PrimaryKeyRelatedField(required=False, queryset=MusicModel.objects.all(), many=True)
-    totaltracks = serializers.IntegerField(required=False)
     description = serializers.CharField(required=False)
     
     class Meta:
         model = AlbumModel
-        fields = ['title', 'albumcover', 'artist_id', 'music_id', 'totaltracks', 'description']
+        fields = ['title', 'cover', 'artist_id', 'music_id', 'description']
         
     def create(self, validated_data):
         try:
@@ -44,17 +43,18 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
                 album.music_id.set(music_id)
                 
             if album:
+                album.count_totaltracks(len(music_id))
                 return album
             
         except Exception as err:
-            print(err)
+            pass
         
         
     def to_representation(self, instance):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['cover'] = instance.albumcover.url
+        req['cover'] = instance.cover.url if instance.cover.url else None
         req['artists'] = instance.artist_id.values('id', 'name')
         req['musics'] = instance.music_id.values('id', 'title')
         req['totaltracks'] = instance.totaltracks
