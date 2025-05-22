@@ -171,7 +171,7 @@ def add_genere(request: Request) -> Response:
 
 
 @api_view(['DELETE'])
-@permission_classes([Is_superadmin])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def delete_genere(request:Request, id:int) -> Response:
     """
         - Delete genere from database by reqeust.data info
@@ -218,7 +218,7 @@ def delete_genere(request:Request, id:int) -> Response:
   
   
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_artist_to_genere(request:Request) -> Response: 
     """
         - Add artist to the genere
@@ -265,7 +265,7 @@ def add_artist_to_genere(request:Request) -> Response:
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def remove_artist_from_genere(request:Request) -> Response: 
     """
         - Remove artist from the genere
@@ -315,7 +315,7 @@ def remove_artist_from_genere(request:Request) -> Response:
   
     
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_music_to_genere(request:Request) -> Response: 
     """
         - Add music to the genere
@@ -360,7 +360,7 @@ def add_music_to_genere(request:Request) -> Response:
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def remove_music_from_genere(request:Request) -> Response: 
     """
         - Remove music from the genere
@@ -407,7 +407,7 @@ def remove_music_from_genere(request:Request) -> Response:
   
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_album_to_genere(request:Request) -> Response: 
     """
         - Add album to the genere
@@ -452,7 +452,7 @@ def add_album_to_genere(request:Request) -> Response:
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def remove_album_from_genere(request:Request) -> Response: 
     """
         - Remove album from the genere
@@ -501,7 +501,7 @@ def remove_album_from_genere(request:Request) -> Response:
   
   
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def add_playlist_to_genere(request:Request) -> Response: 
     """
         - Add playlistto the genere
@@ -546,7 +546,7 @@ def add_playlist_to_genere(request:Request) -> Response:
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def remove_playlist_from_genere(request:Request) -> Response: 
     """
         - Remove playlist from the genere
