@@ -1,13 +1,9 @@
 from rest_framework import serializers
-from loguru import logger
-from time import time
-
-
 
 from ..models.albums import AlbumModel
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
-from ..models.genres import GenereModel
+
 
 
 
@@ -59,8 +55,8 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
         req['musics'] = instance.music_id.values('id', 'title')
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
-        req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
+        req['created_at'] = instance.created_at
         
         return req
     
@@ -240,15 +236,7 @@ class RemoveMusicFromAlbums(serializers.ModelSerializer):
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
 class UpdateAlbumSerializers(serializers.ModelSerializer):
     """
@@ -260,20 +248,15 @@ class UpdateAlbumSerializers(serializers.ModelSerializer):
     """
     class Meta:
         model = AlbumModel
-        fields = ['id', 'title', 'albumcover', 'artist_id', 'music_id', 'totaltracks', 'description']
+        fields = ['id', 'title', 'cover', 'description']
         read_only_fields = ['id',]
         
     def update(self, instance, validated_data):
         try:
-            if 'artist_id' in validated_data:
-                
-                validated_data.pop('artist_id')
-            if 'music_id' in validated_data:
-                validated_data.pop('music_id')
-            
+         
             for attr , value in validated_data.items():
                 setattr(instance, attr, value)
-            instance.updated_at = int(time())
+                
             instance.save()
             
             return instance
@@ -286,16 +269,17 @@ class UpdateAlbumSerializers(serializers.ModelSerializer):
         req = {}
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['cover'] = instance.albumcover.url
-        req['artists'] = instance.artist_id.values('id', 'name')
-        req['musics'] = instance.music_id.values('id', 'title')
-        req['totaltracks'] = instance.totaltracks
+        req['cover'] = instance.cover.url if instance.cover.url else None
         req['description'] = instance.description
-        req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
+        req['created_at'] = instance.created_at
         
         
         return req
+    
+    
+    
+    
     
     
     

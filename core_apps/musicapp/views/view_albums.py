@@ -475,7 +475,7 @@ def update_album(request:Response) -> Response:
     """
         - Add album into database by reqeust.data info
         - METHOD : PUT
-        - Json schema :{'title':Album-name, 'albumcover':Album-cover, 'music_id':Music_id, 'aritst-id':Artist-id, 'totaltracks':Album-totaltracks, 'description':Album-description}
+        - Json schema :{'title':, 'cover':, 'description':}
         - Supported image : jpg, png, jpeg
         - Relational with artist models and musics
         * Only admin's and super-admin's call this endpoint
@@ -487,59 +487,31 @@ def update_album(request:Response) -> Response:
         if len(data) == 0 or not len(data) > 1:
             return Response({'msg':'Add values with fields to update the album data.', 'essential-field':'id', 'optional-fields':'title, albumcover, artist_id, music_id, totaltracks,description', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
-        if 'id' not in data:
+        if 'id' not in data or 'id' in data and  len(data['id']) < 1 :
             return Response({'msg':'Provide album id to update album data.', 'status':400,}, status=status.HTTP_400_BAD_REQUEST)
         
        
-        if 'albumcover' in data:
-            if len(data['albumcover']) == 0 or len(data.getlist('albumcover')) > 1:
+        if 'cover' in data:
+            if len(data['cover']) == 0 or len(data.getlist('cover')) > 1:
                 return Response({'msg':'Provide image for the albom cover.', 'status':400} , status=status.HTTP_400_BAD_REQUEST) 
             
-            if path.splitext(data['albumcover'].name)[-1] not in ['.jpg', '.png', '.jpeg'] :
+            if path.splitext(data['cover'].name)[-1] not in ['.jpg', '.png', '.jpeg'] :
                 return Response({'msg':'Image type is not supported.', 'supported-image':'jpg, png, jpeg', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
         
         
-        
-        if 'artist_id' in data:
-            artist_ids = list(data.getlist('artist_id'))
-            if  len(artist_ids) == 0 or len(data['artist_id']) == 0:
-                return Response({'msg': 'Provide at least one valid artist ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-
-            artist = ArtistsModel.objects.filter(pk__in = artist_ids)
-      
-            if  not artist.exists() or artist.count() != len(artist_ids):
-                return Response({'msg': 'Some artist IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
-        
-        
-        if 'music_id' in data:
-            music_ids = list(data.getlist('music_id'))
-            if len(music_ids) == 0 or len(data['music_id']) == 0 :
-                return Response({'msg': 'Provide at least one valid music ID.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-            
-            music = MusicModel.objects.filter(pk__in = music_ids)
-            
-            if  not music.exists() or music.count() != len(music_ids):
-                return Response({'msg': 'Some music IDs are invalid or missing.', 'status': 400}, status=status.HTTP_400_BAD_REQUEST)
-   
    
         album = AlbumModel.objects.get(pk=data['id'])
         serializer = UpdateAlbumSerializers(album, data=data, partial=True)
         
         if serializer.is_valid():
-            if 'albumcover' in data:
-                image_path = path.join(settings.MEDIA_ROOT, album.albumcover.path)
+            if album.cover and 'cover' in data:
+                image_path = path.join(settings.MEDIA_ROOT, album.cover.path)
                 if os.path.exists(image_path):
                     os.remove(image_path)
             serializer.save()
-            
-            if 'artist_id' in data and artist :
-                album.artist_id.set(artist)
-            if 'music_id' in data and music : 
-                album.music_id.set(music)
+
                 
-            return Response({'msg':'Album info updated.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+            return Response({'msg':'Album data updated successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
      
         
     except AlbumModel.DoesNotExist:
