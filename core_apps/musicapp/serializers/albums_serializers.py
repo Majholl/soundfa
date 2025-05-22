@@ -310,7 +310,7 @@ class GetAlbumByNameSerializer(serializers.ModelSerializer):
             
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['cover'] = instance.albumcover.url
+        req['cover'] = instance.cover.url if instance.cover.url else None
         req['totaltracks'] = instance.totaltracks
         req['description'] = instance.description
         req['artists'] = instance.artist_id.values('id', 'name', 'image')

@@ -1,12 +1,15 @@
+from django.db.models import Q
+from django.conf import settings
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.pagination import PageNumberPagination
-from urllib.request import Request
-from loguru import logger
-from typing import Optional
-from django.conf import settings
 from rest_framework import status
+
+
+from urllib.request import Request
+from typing import Optional
 import os 
 from os import path
 
@@ -25,7 +28,7 @@ from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_supera
 
 
 @api_view(['GET'])
-def get_album_by_album_name(request:Response, title:Optional[str]=None) -> Response:
+def get_album_by_album_id(request:Response, qset:Optional[str]=None) -> Response:
     """
         - Get album data from db 
         - METHOD : Get
@@ -34,15 +37,10 @@ def get_album_by_album_name(request:Response, title:Optional[str]=None) -> Respo
     
     try:
         
-        info_dict = {}
+        if qset is None :
+            return Response({'msg':'Provide album name for searching.', 'status':200, 'data':''}, status=status.HTTP_200_OK)
         
-        if title is None :
-            return Response({'msg':'Provide album name for searching.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
-        
-        elif title :
-            info_dict['title'] = title 
-            
-        album = AlbumModel.objects.filter(**info_dict)
+        album = AlbumModel.objects.filter(Q(id = qset))
         if album:
             serializer = GetAlbumByNameSerializer(instance=album, many=True)
             return Response({'msg':'Album data found successfully.', 'status':200, 'album':serializer.data,}, status=status.HTTP_200_OK)
@@ -51,6 +49,52 @@ def get_album_by_album_name(request:Response, title:Optional[str]=None) -> Respo
         
     except Exception as err :
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
+    
+    
+    
+    
+@api_view(['GET'])
+def get_album_by_album_name(request:Response, qset:Optional[str]=None) -> Response:
+    """
+        - Get album data from db 
+        - METHOD : Get
+        - Json schema : -
+    """
+    
+    try:
+        paginator = PageNumberPagination()
+        pages = {}
+                
+        if qset is None :
+            return Response({'msg':'Provide album name for searching.', 'status':200, 'data':''}, status=status.HTTP_200_OK)
+        
+
+        album = AlbumModel.objects.filter(Q(title__icontains = qset))
+        
+        page = paginator.paginate_queryset(album, request)
+        
+        serializer = GetAlbumByNameSerializer(instance=page, many=True)
+        
+        next_link = paginator.get_next_link() 
+        prev_link = paginator.get_previous_link()
+         
+        if next_link is not None:
+            pages['next_page'] = next_link
+        if prev_link is not None:
+            pages['prev_page'] = prev_link
+                    
+        
+        return Response({'msg':'Album data found successfully.', 'status':200, 'album':serializer.data,}, status=status.HTTP_200_OK)
+        
+        
+    except Exception as err :
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        
+    
     
     
     
@@ -80,7 +124,7 @@ def get_all_albums(request:Request) -> Response:
         if prev_link is not None:
             pages['prev_page'] = prev_link
             
-        return Response({'msg':'Albums list.', **pages, 'status':200, 'data':serializers.data, 'total':allalbums.count()}, status=status.HTTP_200_OK)
+        return Response({'msg':'Albums returned successfully.', **pages, 'status':200, 'data':serializers.data, 'total':allalbums.count()}, status=status.HTTP_200_OK)
     except Exception as err :
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -186,9 +230,6 @@ def add_album(request:Request) -> Response :
 
 
 
-
-
-   
    
     
 @api_view(['DELETE'])
@@ -224,9 +265,6 @@ def delete_album(request:Request, id:int):
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-
-
-
 
 
 
@@ -275,7 +313,6 @@ def add_artist_to_Albums(request:Request) -> Response:
     
     
     
-    
 @api_view(['PATCH'])
 @permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
 def remove_artist_from_Albums(request:Request) -> Response: 
@@ -316,9 +353,6 @@ def remove_artist_from_Albums(request:Request) -> Response:
 
 
     
-
-
-
 
 
 
@@ -366,10 +400,6 @@ def add_music_to_Albums(request:Request) -> Response:
 
 
 
-
-
-
-
     
 @api_view(['PATCH'])
 @permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
@@ -408,62 +438,6 @@ def remove_music_from_Albums(request:Request) -> Response:
             
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
