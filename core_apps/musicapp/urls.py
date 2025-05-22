@@ -69,6 +69,11 @@ artist_url = [
 album_url = [
     path('album/add/', view_albums.add_album, name='Album-add'),
     path('album/delete/<int:id>', view_albums.delete_album, name='Album-delete'), 
+    path('album/addartist/', view_albums.add_artist_to_Albums, name='Add-artist-to-album'),
+    path('album/removeartist/', view_albums.remove_artist_from_Albums, name='Remove-artist-from-album'),
+    path('album/addmusic/', view_albums.add_music_to_Albums, name='Add-music-to-album'),
+    path('album/removemusic/', view_albums.remove_music_from_Albums, name='Remove-music-from-album'),
+    
     
     
     path('album/update/', view_albums.update_album, name='Album-update'),

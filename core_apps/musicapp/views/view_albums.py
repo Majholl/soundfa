@@ -15,7 +15,7 @@ from os import path
 from ..models.albums import AlbumModel 
 from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
-from ..serializers.albums_serializers import CreateAlbumSerializers, UpdateAlbumSerializers, GetAlbumByNameSerializer
+from ..serializers.albums_serializers import CreateAlbumSerializers, AddArtistToAlbums, RemoveArtistFromAlbums, AddMusicToAlbums, RemoveMusicFromAlbums, UpdateAlbumSerializers, GetAlbumByNameSerializer
 from ..perms_manager import AllowAuthenticatedAndAdminsAndSuperAdmin , Is_superadmin
 
 
@@ -188,7 +188,6 @@ def add_album(request:Request) -> Response :
 
 
 
-
    
    
     
@@ -225,6 +224,238 @@ def delete_album(request:Request, id:int):
     except Exception as err:
         return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+
+
+
+
+
+
+  
+@api_view(['PATCH'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
+def add_artist_to_Albums(request:Request) -> Response: 
+    """
+        - Add artist to the Albums
+        - METHOD : PATCH
+        - Json schema :{id:'', artist_id:''}
+        - Relational with artist, musics
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data or 'id' in data and  len(data['id']) < 1 :
+            return Response({'msg':'Add id of the albums to add artist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'artist_id' in data or 'artist_id' in data and len(data['artist_id']) == 0 :
+            return Response({'msg':'Provide artist id(s) to add to the albums.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        albums = AlbumModel.objects.get(id= int(data['id']))
+        
+        serializer = AddArtistToAlbums(albums, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Artist(s) added to albums successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except AlbumModel.DoesNotExist:
+        return Response({'msg':'Albums does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+    
+    
+    
+    
+    
+@api_view(['PATCH'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
+def remove_artist_from_Albums(request:Request) -> Response: 
+    """
+        - Remove artist to the Albums
+        - METHOD : PATCH
+        - Json schema :{id:'', artist_id:''}
+        - Relational with artist, musics
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data or 'id' in data and  len(data['id']) < 1 :
+            return Response({'msg':'Add id of the albums to remove artist.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'artist_id' in data or 'artist_id' in data and len(data['artist_id']) == 0 :
+            return Response({'msg':'Provide artist id(s) to remove from the albums.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        albums = AlbumModel.objects.get(id= int(data['id']))
+    
+        serializer = RemoveArtistFromAlbums(albums, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Artist(s) removed to albums successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except AlbumModel.DoesNotExist:
+        return Response({'msg':'Albums does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+    
+
+
+
+
+
+
+  
+@api_view(['PATCH'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
+def add_music_to_Albums(request:Request) -> Response: 
+    """
+        - Add music to the Albums
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with artist, musics
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        print(len(data['id']))
+        if not 'id' in data or 'id' in data and  len(data['id']) < 1 :
+            return Response({'msg':'Add id of the albums to add music.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to add to the albums.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        albums = AlbumModel.objects.get(id= int(data['id']))
+        
+        serializer = AddMusicToAlbums(albums, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Music(s) added to albums successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except AlbumModel.DoesNotExist:
+        return Response({'msg':'Albums does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+    
+@api_view(['PATCH'])
+@permission_classes([AllowAuthenticatedAndAdminsAndSuperAdmin])
+def remove_music_from_Albums(request:Request) -> Response: 
+    """
+        - Remove music to the Albums
+        - METHOD : PATCH
+        - Json schema :{id:'', music_id:''}
+        - Relational with artist, musics
+        * Only admin's and super-admin's call this endpoint
+    """
+    data = request.data
+    
+    try:
+        
+        if not 'id' in data or 'id' in data and  len(data['id']) < 1 :
+            return Response({'msg':'Add id of the albums to remove music.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not 'music_id' in data or 'music_id' in data and len(data['music_id']) == 0 :
+            return Response({'msg':'Provide music id(s) to remove from the albums.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+       
+       
+        albums = AlbumModel.objects.get(id= int(data['id']))
+    
+        serializer = RemoveMusicFromAlbums(albums, data=data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg': 'Music(s) removed to albums successfully.', 'status':200, 'data':serializer.data}, status=status.HTTP_200_OK)
+        
+        return Response({'msg':'An error occured.', 'status':400, 'error':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+    except AlbumModel.DoesNotExist:
+        return Response({'msg':'Albums does not exists.', 'status':400}, status=status.HTTP_400_BAD_REQUEST)
+            
+    except Exception as err:
+        return Response({'msg':'Internal server error.', 'status':500, 'error':str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

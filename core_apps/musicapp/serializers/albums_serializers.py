@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from loguru import logger
 from time import time
-from itertools import chain
+
 
 
 from ..models.albums import AlbumModel
@@ -63,6 +63,185 @@ class CreateAlbumSerializers(serializers.ModelSerializer):
         req['updated_at'] = instance.updated_at
         
         return req
+    
+    
+    
+    
+    
+    
+class AddArtistToAlbums(serializers.ModelSerializer):
+    """
+        - Serializer for increase artist of albums
+        - Based on : albums model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
+
+    class Meta:
+        model = AlbumModel
+        fields = ['id', 'artist_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['artist_id']:
+            instance.artist_id.add(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+
+
+
+
+class RemoveArtistFromAlbums(serializers.ModelSerializer):
+    """
+        - Serializer for decrease artist of albums
+        - Based on : albums model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
+
+    class Meta:
+        model = AlbumModel
+        fields = ['id', 'artist_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+    
+        for i in validated_data['artist_id']:
+            instance.artist_id.remove(i.pk)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['updated_at'] = instance.updated_at
+        
+        return req
+
+    
+    
+    
+
+
+
+class AddMusicToAlbums(serializers.ModelSerializer):
+    """
+        - Serializer for increase music of albums
+        - Based on : albums model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = AlbumModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+        existing_musics = [i['id'] for i in instance.music_id.values('id')]
+        
+        for i in validated_data['music_id']:
+            instance.music_id.add(i.pk)
+            
+        musics_pk = [i.pk for i in validated_data['music_id']]
+
+        ind = 0
+        for i in musics_pk:
+            if i not in existing_musics:
+                ind +=1 
+                
+        instance.count_totaltracks(instance.totaltracks + ind)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['totaltracks'] = instance.totaltracks
+        req['updated_at'] = instance.updated_at
+        
+        return req
+
+
+
+
+class RemoveMusicFromAlbums(serializers.ModelSerializer):
+    """
+        - Serializer for decrease music of albums
+        - Based on : albums model
+        - METHOD : PATCH
+        - Relation to  artist , music , album
+    """    
+    music_id = serializers.PrimaryKeyRelatedField(queryset=MusicModel.objects.all(), many=True)
+
+    class Meta:
+        model = AlbumModel
+        fields = ['id', 'music_id']
+        read_only_fields = ['id']
+
+    def update(self, instance, validated_data):
+        
+        existing_musics = [i['id'] for i in instance.music_id.values('id')]
+    
+        for i in validated_data['music_id']:
+            instance.music_id.remove(i.pk)
+            
+        musics_pk = [i.pk for i in validated_data['music_id']]
+           
+        ind = 0
+        for i in musics_pk:
+            if i  in existing_musics:
+                ind +=1 
+                
+        instance.count_totaltracks(instance.totaltracks - ind)
+       
+        return instance
+
+        
+    def to_representation(self, instance):
+        req = {}
+        req['id'] = instance.pk
+        req['title'] = instance.title
+        req['musics'] = instance.music_id.values('id', 'title')
+        req['totaltracks'] = instance.totaltracks
+        req['updated_at'] = instance.updated_at
+        
+        return req    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
