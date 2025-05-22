@@ -1,10 +1,7 @@
 from rest_framework import serializers
-from loguru import logger
-from time import time 
+
 
 from ..models.artists import ArtistsModel
-from core_apps.musicapp.models import artists
-
 
 
 class CreateArtistsSerialiazer(serializers.ModelSerializer):

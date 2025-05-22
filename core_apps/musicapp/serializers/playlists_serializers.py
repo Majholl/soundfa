@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from time import time
 
 
 from ..models.playlists import PlaylistModel

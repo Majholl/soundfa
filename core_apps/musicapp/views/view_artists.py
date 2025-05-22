@@ -1,12 +1,13 @@
-from urllib.request import Request
+from django.db.models import Q
+from django.conf import settings
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import  PageNumberPagination
 from rest_framework import status
-from loguru import logger
-from django.db.models import Q
-from django.conf import settings
+
+from urllib.request import Request
 from os import path
 import os
 from typing import Optional
