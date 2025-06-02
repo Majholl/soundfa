@@ -1,28 +1,29 @@
-import os
-from urllib import request
+from django.urls import reverse
+
 from rest_framework import serializers
-from time import time
 
-from ..models.artists import ArtistsModels
+import os
+
+
+from ..models.artists import ArtistsModel
 from ..models.musics import MusicModel
-
-
 
 
 
 class CreateMusicSerializer(serializers.ModelSerializer):
     """
-        -This class is for creating music into database 
-        #- METHOD : POST
-        #- Add music into database
-        #- Represent data 
+        - Serializer for validting music data to add in database
+        - Based on : Music model
+        - METHOD : POST
+        - Create Music object in MYSQL db
+        - Add relation to the artist
     """
-    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModels.objects.all(), many=True)
-    musiccover = serializers.ImageField(required=False)
+    artist_id = serializers.PrimaryKeyRelatedField(queryset=ArtistsModel.objects.all(), many=True)
+    cover = serializers.ImageField(required=False)
     
     class Meta:
         model = MusicModel
-        fields = ['id', 'title' , 'musicfile', 'musiccover', 'duration', 'lyrics', 'artist_id']
+        fields = ['id', 'title' , 'file', 'cover', 'duration', 'lyrics', 'artist_id']
     
     def create(self, validated_data):
         try:
@@ -36,22 +37,14 @@ class CreateMusicSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         req = {}
-  
-        
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['artists_id'] = instance.artist_id.values('id', 'name')
-        req['musicfile'] = instance.musicfile.url
-        
-        if instance.duration : 
-            req['duration'] = instance.duration
-            
-        if instance.lyrics : 
-            req['lyrics'] = instance.lyrics
-            
-        if instance.musiccover :
-            req['musiccover'] = instance.musiccover.url
-            
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['file'] = instance.file.url 
+        req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
@@ -61,33 +54,23 @@ class CreateMusicSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
-
-
-
 class UpdateMusicSerializer(serializers.ModelSerializer):
     """
-        -This class is for updating music data into database
-        #- METHOD : PUT
-        #- Update music into database
-        #- Represent data 
+        - Serializer for validting music data to add in database
+        - Based on : Music model
+        - METHOD : PUT
+        - Update Music object in MYSQL db
     """
     class Meta:
         model = MusicModel
-        fields = ['id', 'duration', 'lyrics', 'musiccover']
+        fields = ['id', 'duration', 'lyrics', 'cover']
     
     
     def update(self, instance, validated_data):
-        
         try: 
             for atrr , value in validated_data.items():
                 setattr(instance, atrr, value)
                 
-            instance.updated_at = int(time())     
             instance.save()  
             return instance
         
@@ -97,26 +80,18 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         req = {}
-
         req['id'] = instance.pk
         req['title'] = instance.title
-        req['artists_id'] =  instance.artist_id.values('id', 'name')
-        req['musicfile'] = instance.musicfile.url
-        
-        if instance.musiccover:
-            req['musiccover'] = instance.musiccover.url
-            
-        if instance.duration:
-            req['duration'] = instance.duration
-            
-        if instance.lyrics:
-            req['lyrics'] = instance.lyrics
-            
+        req['file'] = instance.file.url 
+        req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
+        req['artists'] = instance.artist_id.values('id', 'name')
         req['created_at'] = instance.created_at
         req['updated_at'] = instance.updated_at
         
         return req
-    
 
 
 
@@ -125,44 +100,37 @@ class UpdateMusicSerializer(serializers.ModelSerializer):
 
 class GetMusicByNameSerializer(serializers.ModelSerializer):
     """
-        -This class called to returned musics info
-            #- METHOD : GET 
-            #- Get musics info 
-            #- Represent data 
+        - Serializer for retruning music data
+        - Based on : Music model
+        - METHOD : GET
     """
     
     download_url = serializers.SerializerMethodField()
     class Meta:
         model = MusicModel
-        fields = ['id', 'title', 'musicfile', 'download_url', 'musiccover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'file', 'download_url', 'cover', 'duration', 'lyrics', 'artist_id', 'created_at', 'updated_at']
     
     
     def get_download_url(self, obj):
         request = self.context.get('request')
-        filename = os.path.basename(obj.musicfile.name)
-        return request.build_absolute_uri(f'download/music/{filename}')
+        filename = os.path.basename(obj.file.name)
+        return request.build_absolute_uri(reverse('download-music', args=[filename]))
+        
+        
         
         
     def to_representation(self, instance):
         req = {}
-        pk = instance.pk
-        
-        req['id'] = pk     
+        req['id'] = instance.pk
         req['title'] = instance.title
-        req['musicfile']  = instance.musicfile.url
-        req['musicfile-downloadable'] = self.get_download_url(instance)
-        
-        if instance.musiccover :
-            req['musiccover']  = instance.musiccover.url
-            
-        if instance.duration : 
-            req['duration']  = instance.duration
-            
-        if instance.lyrics : 
-            req['lyrics']  = instance.lyrics
-            
-        req['artists']  = instance.artist_id.values('id', 'name') 
-        req['created_at']  = instance.created_at   
-        req['updated_at']  = instance.updated_at   
+        req['file'] = instance.file.url 
+        req['file-downloadable'] = self.get_download_url(instance)
+        req['cover'] = instance.cover.url if instance.cover else None
+        req['genere'] = instance.genere_musics.values('id', 'name')
+        req['duration'] = instance.duration
+        req['lyrics'] = instance.lyrics  
+        req['artists'] = instance.artist_id.values('id', 'name')
+        req['created_at'] = instance.created_at
+        req['updated_at'] = instance.updated_at
         
         return req

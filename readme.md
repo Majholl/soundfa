@@ -31,7 +31,7 @@ api based project for music websites .
 |v1/api/music/add/ | POST | Add music |
 | v1/api/music/artist/ | GET | Get muisc by artist name |
 
-<b>Full doc </b>: <a href='https://www.postman.com/grey-escape-224969/soundfa'>Full Documentation api requests</a>
+<b>Full doc </b>: <a href="https://www.postman.com/grey-escape-224969/workspace/nameless">Full Documentation api requests</a>
 
 
 ### ⛓️How to Run 
@@ -42,7 +42,20 @@ api based project for music websites .
 
 #### 🐬 Docker run 
 <hr>
-- soon
+For running by docker simply : 
+
+
+- Build & Run the countainer
+
+```bash 
+    docker-compose up --build 
+```
+
+- Stop the countainer 
+```bash 
+    docker-compose down
+```
+
 
 ##### 📸 Images 
 - soon
