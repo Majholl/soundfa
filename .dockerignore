@@ -78,4 +78,5 @@ db.sqlite3-journal
 
 # other's
 !entrypoint.sh
+!celery_start.sh
 .git

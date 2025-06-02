@@ -10,8 +10,21 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    
-  backend:
+  redis :  
+    image : redis:latest
+    container_name:  redis 
+    ports:
+      - "6379:6379"
+
+  mailpit:
+      image: axllent/mailpit:latest
+      ports:
+          - "8025:8025"
+          - "1025:1025"
+      volumes:
+          - soundfa_mailpit_db:/data 
+
+  backend: &backend
     build: .
     container_name: soundfa
     restart: always
@@ -24,9 +37,15 @@ services:
 
     depends_on:
       - db
+      - redis
+      - mailpit
 
-
+  celeryworker:
+      <<: *backend
+      command: /start-celeryworker.sh
+      
     
 
 volumes:
   mysql_data:
+  soundfa_mailpit_db:
