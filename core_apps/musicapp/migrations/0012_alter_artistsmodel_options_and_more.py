@@ -19,12 +19,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='albummodel',
             name='created_at',
-            field=models.BigIntegerField(default=core_apps.musicapp.models.albums.nowTimeStamp),
+            field=models.BigIntegerField(default=1),
         ),
         migrations.AlterField(
             model_name='albummodel',
             name='updated_at',
-            field=models.BigIntegerField(default=core_apps.musicapp.models.albums.nowTimeStamp),
+            field=models.BigIntegerField(default=1),
         ),
         migrations.AlterField(
             model_name='artistsmodel',

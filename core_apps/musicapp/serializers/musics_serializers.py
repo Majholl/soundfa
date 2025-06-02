@@ -1,7 +1,8 @@
-import os
-from rest_framework import serializers
-from time import time
 from django.urls import reverse
+
+from rest_framework import serializers
+
+import os
 
 
 from ..models.artists import ArtistsModel
